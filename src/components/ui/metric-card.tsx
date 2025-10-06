@@ -91,51 +91,49 @@ function MetricCard({
   return (
     <div
       className={cn(
-        "glass-hover rounded-lg border border-border p-6 shadow-subtle slide-up",
+        "glass-hover rounded-lg border border-border p-6 shadow-subtle slide-up relative",
         className
       )}
       {...props}
     >
-      <div className="flex items-start justify-between">
-        <div className="space-y-2 flex-1">
-          {/* Title */}
-          <p className="text-sm font-medium text-muted-foreground">{title}</p>
-
-          {/* Value with animated counter */}
-          <div className="flex items-baseline gap-2">
-            <h3 className="text-3xl font-bold tracking-tight text-white">
-              {prefix}
-              {typeof value === "number" ? displayValue.toLocaleString() : value}
-              {suffix}
-            </h3>
-
-            {/* Change indicator */}
-            {change !== undefined && !isNaN(change) && (
-              <div
-                className={cn(
-                  "flex items-center gap-1 text-sm font-medium transition-smooth",
-                  isPositive ? "text-emerald-500" : "text-red-500"
-                )}
-              >
-                {isPositive ? (
-                  <TrendingUp className="h-4 w-4" />
-                ) : (
-                  <TrendingDown className="h-4 w-4" />
-                )}
-                <span>
-                  {Math.abs(change).toFixed(1)}%
-                </span>
-              </div>
-            )}
-          </div>
+      {/* Icon - positioned in top right */}
+      {Icon && (
+        <div className="absolute top-6 right-6 rounded-lg bg-primary/10 p-3 text-primary">
+          <Icon className="h-6 w-6" />
         </div>
+      )}
 
-        {/* Icon */}
-        {Icon && (
-          <div className="rounded-lg bg-primary/10 p-3 text-primary">
-            <Icon className="h-6 w-6" />
-          </div>
-        )}
+      <div className="space-y-2 pr-16">
+        {/* Title */}
+        <p className="text-sm font-medium text-muted-foreground">{title}</p>
+
+        {/* Value with animated counter */}
+        <div className="flex items-baseline gap-2">
+          <h3 className="text-3xl font-bold tracking-tight text-white">
+            {prefix}
+            {typeof value === "number" ? displayValue.toLocaleString() : value}
+            {suffix}
+          </h3>
+
+          {/* Change indicator */}
+          {change !== undefined && !isNaN(change) && (
+            <div
+              className={cn(
+                "flex items-center gap-1 text-sm font-medium transition-smooth",
+                isPositive ? "text-emerald-500" : "text-red-500"
+              )}
+            >
+              {isPositive ? (
+                <TrendingUp className="h-4 w-4" />
+              ) : (
+                <TrendingDown className="h-4 w-4" />
+              )}
+              <span>
+                {Math.abs(change).toFixed(1)}%
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Sparkline chart */}

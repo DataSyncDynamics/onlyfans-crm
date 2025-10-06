@@ -91,6 +91,11 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className={cn("space-y-4 fade-in", className)}>
+      {/* Screen reader announcement for search results - WCAG 4.1.3 */}
+      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+        {table.getFilteredRowModel().rows.length} results found
+      </div>
+
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-4">
         {/* Search */}
@@ -103,7 +108,7 @@ export function DataTable<TData, TValue>({
               onChange={(event) =>
                 table.getColumn(searchKey)?.setFilterValue(event.target.value)
               }
-              className="flex h-10 w-full rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-2 pl-9 text-sm text-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:border-purple-500 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
+              className="flex h-11 w-full rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-2 pl-9 text-sm text-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:border-purple-500 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
             />
           </div>
         )}
@@ -139,9 +144,11 @@ export function DataTable<TData, TValue>({
         )}
       </div>
 
-      {/* Table */}
+      {/* Table - Mobile-safe horizontal scroll */}
       <div className="rounded-lg border border-slate-800/50 overflow-hidden bg-slate-900/30">
-        <Table>
+        <div className="overflow-x-auto -webkit-overflow-scrolling-touch">
+          <div className="inline-block min-w-full align-middle">
+            <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -208,6 +215,8 @@ export function DataTable<TData, TValue>({
             )}
           </TableBody>
         </Table>
+          </div>
+        </div>
       </div>
 
       {/* Pagination */}

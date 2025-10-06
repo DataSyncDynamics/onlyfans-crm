@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import {
   CheckCircle2,
   AlertCircle,
-  Database,
   Users,
   DollarSign,
   Loader2,
@@ -42,49 +41,47 @@ export function SyncProgressModal({
   useEffect(() => {
     if (!open) return;
 
+    const startSync = async (): Promise<void> => {
+      try {
+        const response = await fetch(`/api/creators/${creatorId}/sync`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (!response.ok) {
+          throw new Error("Sync failed");
+        }
+
+        // Poll for progress
+        const pollInterval = setInterval(async () => {
+          const statusResponse = await fetch(
+            `/api/creators/${creatorId}/sync-status`
+          );
+          const status = await statusResponse.json();
+
+          setProgress(status);
+
+          if (status.stage === "completed") {
+            clearInterval(pollInterval);
+            setCanClose(true);
+          } else if (status.stage === "error") {
+            clearInterval(pollInterval);
+            setCanClose(true);
+          }
+        }, 1000);
+      } catch (error) {
+        setProgress({
+          stage: "error",
+          message: error instanceof Error ? error.message : "Sync failed",
+          progress: 0,
+        });
+        setCanClose(true);
+      }
+    };
+
     // Start sync process
     startSync();
   }, [open, creatorId]);
-
-  const startSync = async () => {
-    try {
-      const response = await fetch(`/api/creators/${creatorId}/sync`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      if (!response.ok) {
-        throw new Error("Sync failed");
-      }
-
-      // Poll for progress
-      const pollInterval = setInterval(async () => {
-        const statusResponse = await fetch(
-          `/api/creators/${creatorId}/sync-status`
-        );
-        const status = await statusResponse.json();
-
-        setProgress(status);
-
-        if (status.stage === "completed") {
-          clearInterval(pollInterval);
-          setCanClose(true);
-        } else if (status.stage === "error") {
-          clearInterval(pollInterval);
-          setCanClose(true);
-        }
-      }, 1000);
-
-      return () => clearInterval(pollInterval);
-    } catch (error) {
-      setProgress({
-        stage: "error",
-        message: error instanceof Error ? error.message : "Sync failed",
-        progress: 0,
-      });
-      setCanClose(true);
-    }
-  };
 
   const handleClose = () => {
     if (canClose) {
@@ -100,12 +97,6 @@ export function SyncProgressModal({
       return <AlertCircle className="h-12 w-12 text-red-500" />;
     }
     return <Loader2 className="h-12 w-12 text-purple-500 animate-spin" />;
-  };
-
-  const getStageTitle = () => {
-    if (progress.stage === "completed") return "Sync Complete!";
-    if (progress.stage === "error") return "Sync Failed";
-    return "Syncing Data...";
   };
 
   return (
@@ -250,7 +241,7 @@ export function SyncProgressModal({
           {/* Note */}
           {progress.stage !== "completed" && progress.stage !== "error" && (
             <p className="text-xs text-slate-500 text-center">
-              This may take a few minutes. You can close this and we'll continue syncing in the background.
+              This may take a few minutes. You can close this and we&apos;ll continue syncing in the background.
             </p>
           )}
         </div>

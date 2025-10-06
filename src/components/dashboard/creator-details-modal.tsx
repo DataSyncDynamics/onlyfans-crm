@@ -10,8 +10,8 @@ import {
 import { MetricCard } from "@/components/ui/metric-card";
 import { RevenueChart } from "@/components/dashboard/revenue-chart";
 import { ArchiveCreatorDialog } from "@/components/dashboard/archive-creator-dialog";
-import { Creator, Fan, Transaction, Chatter } from "@/types";
-import { TRANSACTIONS, FANS, CHATTERS, getCreatorById } from "@/lib/mock-data";
+import { Creator, Fan, Chatter } from "@/types";
+import { TRANSACTIONS, FANS, CHATTERS } from "@/lib/mock-data";
 import {
   DollarSign,
   Users,
@@ -22,7 +22,6 @@ import {
   MessageSquare,
   Image as ImageIcon,
   Crown,
-  ExternalLink,
   Edit,
   Archive,
 } from "lucide-react";
@@ -83,7 +82,10 @@ export function CreatorDetailsModal({
             revenue: 0,
           };
         }
-        revenueByChatter[t.chatterId].revenue += t.amount;
+        const chatterRecord = revenueByChatter[t.chatterId];
+        if (chatterRecord) {
+          chatterRecord.revenue += t.amount;
+        }
       }
     });
 
@@ -217,14 +219,14 @@ export function CreatorDetailsModal({
 
             {/* Quick Actions */}
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="gap-2">
+              <Button variant="outline" size="sm" className="gap-2 bg-slate-800/50 hover:bg-slate-800 border-slate-700 text-slate-300 hover:text-white">
                 <Edit className="h-4 w-4" />
                 Edit
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-2 text-red-400 hover:text-red-300"
+                className="gap-2 bg-red-600/10 hover:bg-red-600/20 border-red-600/30 text-red-400 hover:text-red-300"
                 onClick={() => setArchiveDialogOpen(true)}
               >
                 <Archive className="h-4 w-4" />
@@ -240,7 +242,7 @@ export function CreatorDetailsModal({
             <MetricCard
               title="Total Revenue"
               value={`$${(creator.totalRevenue / 1000).toFixed(1)}k`}
-              change={`${metrics.revenueChange >= 0 ? "+" : ""}${metrics.revenueChange.toFixed(1)}%`}
+              change={metrics.revenueChange}
               trend={metrics.revenueChange >= 0 ? "up" : "down"}
               icon={DollarSign}
               className="border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent"

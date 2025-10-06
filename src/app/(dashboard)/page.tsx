@@ -1,12 +1,16 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useRole } from "@/contexts/role-context";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { RevenueChart } from "@/components/dashboard/revenue-chart";
 import { CreatorCard } from "@/components/dashboard/creator-card";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { TopFansTable } from "@/components/dashboard/top-fans-table";
 import { ChatterPerformanceCard } from "@/components/dashboard/chatter-performance-card";
+import { CreatorDashboard } from "@/components/dashboard/creator-dashboard";
+import { ChatterDashboard } from "@/components/dashboard/chatter-dashboard";
 import {
   getAgencyMetrics,
   CREATORS,
@@ -18,6 +22,23 @@ import {
 import { DollarSign, Users, MessageSquare, TrendingUp } from "lucide-react";
 
 export default function DashboardPage() {
+  const { role } = useRole();
+
+  // Show different dashboard based on role
+  if (role === "creator") {
+    return <CreatorDashboard />;
+  }
+
+  if (role === "chatter") {
+    return <ChatterDashboard />;
+  }
+
+  // Agency Owner Dashboard (default)
+  return <AgencyOwnerDashboard />;
+}
+
+function AgencyOwnerDashboard() {
+  const router = useRouter();
   const [selectedPeriod, setSelectedPeriod] = useState<7 | 30 | 90>(30);
 
   // Get metrics
@@ -61,13 +82,16 @@ export default function DashboardPage() {
     return sparklines;
   }, []);
 
-  // Calculate messages today
-  const messagesToday = useMemo(() => {
+  // Calculate messages today - client-only to avoid hydration mismatch
+  const [messagesToday, setMessagesToday] = useState(0);
+
+  useEffect(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    return TRANSACTIONS.filter(
+    const count = TRANSACTIONS.filter(
       (t) => t.type === "message" && t.createdAt >= today
     ).length;
+    setMessagesToday(count);
   }, []);
 
   const handlePeriodChange = (period: 7 | 30 | 90) => {
@@ -75,7 +99,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen space-y-6 p-6">
+    <div className="space-y-6 p-6">
       {/* Header */}
       <div className="animate-fade-in">
         <h1 className="text-3xl font-bold text-white">Overview Dashboard</h1>
@@ -96,7 +120,6 @@ export default function DashboardPage() {
           trend="up"
           icon={DollarSign}
           sparklineData={revenueSparkline}
-          variant="large"
         />
         <MetricCard
           title="Active Fans"
@@ -123,9 +146,8 @@ export default function DashboardPage() {
 
       {/* Creator Performance Grid */}
       <div className="animate-fade-in">
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4">
           <h2 className="text-xl font-semibold text-white">Creator Performance</h2>
-          <p className="text-sm text-slate-400">Click to filter dashboard</p>
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {CREATORS.map((creator) => (
@@ -133,7 +155,7 @@ export default function DashboardPage() {
               key={creator.id}
               creator={creator}
               revenueData={creatorSparklines[creator.id]}
-              onClick={() => console.log("Filter by creator:", creator.id)}
+              onClick={() => router.push("/creators")}
             />
           ))}
         </div>
@@ -173,11 +195,10 @@ export default function DashboardPage() {
           <p className="text-sm text-slate-400">Performance leaders</p>
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {topChatters.map((chatter, index) => (
+          {topChatters.map((chatter) => (
             <ChatterPerformanceCard
               key={chatter.id}
               chatter={chatter}
-              rank={index + 1}
             />
           ))}
         </div>

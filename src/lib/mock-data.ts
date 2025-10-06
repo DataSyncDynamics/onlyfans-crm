@@ -5,6 +5,7 @@ import {
   Transaction,
   Message,
   AgencyMetrics,
+  Alert,
 } from "@/types";
 
 // ============================================================================
@@ -333,15 +334,15 @@ const TEMP_FANS: Fan[] = [
 ];
 
 // ============================================================================
-// TRANSACTION GENERATION (90 days, ~3000+ transactions)
+// TRANSACTION GENERATION (180 days, ~6000+ transactions)
 // ============================================================================
 
 function generateTransactionsForFan(fan: Fan): Transaction[] {
   const transactions: Transaction[] = [];
   const now = new Date();
-  const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+  const oneEightyDaysAgo = new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000);
   const startDate =
-    fan.joinedAt > ninetyDaysAgo ? fan.joinedAt : ninetyDaysAgo;
+    fan.joinedAt > oneEightyDaysAgo ? fan.joinedAt : oneEightyDaysAgo;
 
   // Get assigned chatter for this creator
   const assignedChatters = CHATTERS.filter((c) =>
@@ -596,6 +597,170 @@ function generateMessagesForFan(fan: Fan): Message[] {
 export const MESSAGES: Message[] = FANS.flatMap((fan) =>
   generateMessagesForFan(fan)
 );
+
+// ============================================================================
+// ALERTS / NOTIFICATIONS GENERATION
+// ============================================================================
+
+export const ALERTS: Alert[] = [
+  // Revenue notifications (high priority)
+  {
+    id: "alert_1",
+    type: "revenue",
+    title: "Large Tip Received",
+    message: "Whale fan @mike2847 tipped $500 to Stella Rose",
+    priority: "high",
+    read: false,
+    createdAt: new Date(Date.now() - 15 * 60 * 1000), // 15 min ago
+    actionUrl: "/fans?search=mike2847",
+  },
+  {
+    id: "alert_2",
+    type: "revenue",
+    title: "Revenue Milestone Hit",
+    message: "Stella Rose just crossed $5,000 this week! 🎉",
+    priority: "high",
+    read: false,
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+    actionUrl: "/creators",
+  },
+  {
+    id: "alert_3",
+    type: "revenue",
+    title: "Premium Content Purchased",
+    message: "@john4521 purchased exclusive PPV content for $150",
+    priority: "medium",
+    read: true,
+    createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000), // 5 hours ago
+    actionUrl: "/revenue",
+  },
+
+  // Fan engagement alerts
+  {
+    id: "alert_4",
+    type: "warning",
+    title: "Whale Fan Inactive",
+    message: "High-value fan @mike2847 ($3,500 LTV) hasn't messaged in 7 days",
+    priority: "high",
+    read: false,
+    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
+    actionUrl: "/fans?tier=whale",
+  },
+  {
+    id: "alert_5",
+    type: "warning",
+    title: "Churn Risk Detected",
+    message: "@sarah9876 subscription expires in 24h with no renewal set",
+    priority: "high",
+    read: false,
+    createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
+    actionUrl: "/fans",
+  },
+  {
+    id: "alert_6",
+    type: "info",
+    title: "New Whale Identified",
+    message: "@kevin5432 just became a whale ($2,000+ total spent) ⭐",
+    priority: "medium",
+    read: true,
+    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
+    actionUrl: "/fans?tier=whale",
+  },
+  {
+    id: "alert_7",
+    type: "revenue",
+    title: "Fan Milestone Reached",
+    message: "@chris4521 just spent $1,000 total - consider sending appreciation message",
+    priority: "medium",
+    read: true,
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+    actionUrl: "/fans",
+  },
+
+  // Chatter performance
+  {
+    id: "alert_8",
+    type: "chat",
+    title: "Response Time Alert",
+    message: "Sarah Martinez avg response time increased to 8.5 minutes",
+    priority: "medium",
+    read: false,
+    createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
+    actionUrl: "/chatters",
+  },
+  {
+    id: "alert_9",
+    type: "message",
+    title: "High-Value Fans Waiting",
+    message: "3 whale fans have unread messages from Alex Chen",
+    priority: "high",
+    read: false,
+    createdAt: new Date(Date.now() - 45 * 60 * 1000), // 45 min ago
+    actionUrl: "/chatters",
+  },
+  {
+    id: "alert_10",
+    type: "chat",
+    title: "Performance Achievement",
+    message: "Jamie Wilson hit 50% conversion rate this week! 🏆",
+    priority: "low",
+    read: true,
+    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
+    actionUrl: "/chatters",
+  },
+
+  // System & operational
+  {
+    id: "alert_11",
+    type: "warning",
+    title: "Message Backlog",
+    message: "45 unread messages from the last 2 hours need attention",
+    priority: "medium",
+    read: false,
+    createdAt: new Date(Date.now() - 30 * 60 * 1000), // 30 min ago
+    actionUrl: "/chatters",
+  },
+  {
+    id: "alert_12",
+    type: "info",
+    title: "Shift Change Reminder",
+    message: "Sarah Martinez shift ending in 30 minutes - handoff needed",
+    priority: "low",
+    read: true,
+    createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
+    actionUrl: "/chatters",
+  },
+  {
+    id: "alert_13",
+    type: "info",
+    title: "Content Performance",
+    message: "Yesterday's post from Luna Vibe got 3x normal engagement 🔥",
+    priority: "low",
+    read: true,
+    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
+    actionUrl: "/creators",
+  },
+  {
+    id: "alert_14",
+    type: "revenue",
+    title: "Subscription Renewed",
+    message: "VIP fan @david1234 just renewed their subscription",
+    priority: "low",
+    read: true,
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+    actionUrl: "/revenue",
+  },
+  {
+    id: "alert_15",
+    type: "message",
+    title: "New Messages",
+    message: "12 new messages received in the last hour",
+    priority: "low",
+    read: true,
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+    actionUrl: "/chatters",
+  },
+];
 
 // ============================================================================
 // HELPER FUNCTIONS - DATA ACCESS

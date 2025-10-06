@@ -1,5 +1,5 @@
-export const APP_NAME = "OnlyFans CRM";
-export const APP_DESCRIPTION = "Professional CRM for OnlyFans creators and agencies";
+export const APP_NAME = "VaultCRM";
+export const APP_DESCRIPTION = "Professional CRM for OnlyFans creators and agencies - Powered by DataSync Dynamics";
 
 export const ROUTES = {
   HOME: "/",

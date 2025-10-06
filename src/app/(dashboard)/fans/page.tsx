@@ -4,8 +4,10 @@ import { useState, useMemo } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
+import { FanDetailsModal } from "@/components/dashboard/fan-details-modal";
 import { FANS, getCreatorById } from "@/lib/mock-data";
 import { Fan, Creator } from "@/types";
+import { useRole } from "@/contexts/role-context";
 import {
   Users,
   UserCheck,
@@ -69,97 +71,140 @@ function StatusBadge({ status }: { status: Fan["subscriptionStatus"] }) {
 // Creator Badge Component
 function CreatorBadge({ creator }: { creator: Creator }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-800/50 px-2.5 py-0.5 text-xs font-medium text-slate-300">
-      <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1 text-xs font-semibold text-blue-400">
       {creator.displayName}
     </span>
   );
 }
 
-// Define table columns
-const columns: ColumnDef<Fan>[] = [
-  {
-    accessorKey: "username",
-    header: "Fan",
-    cell: ({ row }) => {
-      const fan = row.original;
-      return (
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <span className="font-medium text-white">{fan.username}</span>
-            <TierBadge tier={fan.tier} />
-          </div>
-          {fan.displayName && (
-            <span className="text-xs text-slate-400">{fan.displayName}</span>
-          )}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "creatorId",
-    header: "Creator",
-    cell: ({ row }) => {
-      const creator = getCreatorById(row.original.creatorId);
-      return creator ? <CreatorBadge creator={creator} /> : null;
-    },
-  },
-  {
-    accessorKey: "totalSpent",
-    header: "Total Spent",
-    cell: ({ row }) => (
-      <span className="font-semibold text-emerald-400">
-        ${row.original.totalSpent.toLocaleString("en-US", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}
-      </span>
-    ),
-  },
-  {
-    accessorKey: "messageCount",
-    header: "Messages",
-    cell: ({ row }) => (
-      <span className="text-slate-300">{row.original.messageCount}</span>
-    ),
-  },
-  {
-    accessorKey: "subscriptionStatus",
-    header: "Status",
-    cell: ({ row }) => <StatusBadge status={row.original.subscriptionStatus} />,
-  },
-  {
-    accessorKey: "lastActiveAt",
-    header: "Last Active",
-    cell: ({ row }) => (
-      <span className="text-xs text-slate-400">
-        {formatDistanceToNow(row.original.lastActiveAt, { addSuffix: true })}
-      </span>
-    ),
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => (
-      <Button
-        variant="outline"
-        size="sm"
-        className="h-8 gap-1.5"
-        onClick={() => console.log("View fan:", row.original.id)}
-      >
-        <Eye className="h-3.5 w-3.5" />
-        View
-      </Button>
-    ),
-  },
-];
-
 export default function FansPage() {
+  const { role } = useRole();
   const [selectedTier, setSelectedTier] = useState<Fan["tier"] | "all">("all");
   const [selectedCreator, setSelectedCreator] = useState<string | "all">("all");
   const [selectedStatus, setSelectedStatus] = useState<
     Fan["subscriptionStatus"] | "all"
   >("all");
+  const [selectedFan, setSelectedFan] = useState<Fan | null>(null);
+
+  // Define table columns - conditionally based on role
+  const columns: ColumnDef<Fan>[] = [
+    {
+      accessorKey: "username",
+      header: "Fan",
+      cell: ({ row }) => {
+        const fan = row.original;
+        return (
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-white">{fan.username}</span>
+              <TierBadge tier={fan.tier} />
+            </div>
+            {fan.displayName && (
+              <span className="text-xs text-slate-400">{fan.displayName}</span>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "creatorId",
+      header: () => <div className="text-center">Creator</div>,
+      cell: ({ row }) => {
+        const creator = getCreatorById(row.original.creatorId);
+        return creator ? (
+          <div className="flex justify-center">
+            <CreatorBadge creator={creator} />
+          </div>
+        ) : null;
+      },
+    },
+    // Conditional column: Show $ for agency_owner/creator, engagement score for chatter
+    ...(role !== "chatter"
+      ? [
+          {
+            accessorKey: "totalSpent",
+            header: () => <div className="text-center">Total Spent</div>,
+            cell: ({ row }: { row: any }) => (
+              <div className="text-center">
+                <span className="font-semibold text-emerald-400">
+                  ${row.original.totalSpent.toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
+            ),
+          } as ColumnDef<Fan>,
+        ]
+      : [
+          {
+            accessorKey: "messageCount",
+            header: () => <div className="text-center">Engagement</div>,
+            cell: ({ row }: { row: any }) => {
+              // Calculate engagement score (0-100) based on message count and tier
+              const score = Math.min(100, (row.original.messageCount / 10) * 50 + (
+                row.original.tier === "whale" ? 50 :
+                row.original.tier === "high" ? 30 :
+                row.original.tier === "medium" ? 15 : 5
+              ));
+              return (
+                <div className="text-center">
+                  <span className={cn(
+                    "font-semibold",
+                    score >= 75 ? "text-emerald-400" :
+                    score >= 50 ? "text-blue-400" :
+                    score >= 25 ? "text-amber-400" : "text-slate-400"
+                  )}>
+                    {score.toFixed(0)}
+                  </span>
+                </div>
+              );
+            },
+          } as ColumnDef<Fan>,
+        ]),
+    {
+      accessorKey: "messageCount",
+      header: () => <div className="text-center">Messages</div>,
+      cell: ({ row }) => (
+        <div className="text-center">
+          <span className="text-slate-300">{row.original.messageCount}</span>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "subscriptionStatus",
+      header: () => <div className="text-center">Status</div>,
+      cell: ({ row }) => (
+        <div className="flex justify-center">
+          <StatusBadge status={row.original.subscriptionStatus} />
+        </div>
+      ),
+    },
+    {
+      accessorKey: "lastActiveAt",
+      header: "Last Active",
+      cell: ({ row }) => (
+        <span className="text-xs text-slate-400">
+          {formatDistanceToNow(row.original.lastActiveAt, { addSuffix: true })}
+        </span>
+      ),
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 gap-1.5 bg-slate-800/50 hover:bg-slate-800 border-slate-700 text-slate-300 hover:text-white"
+          onClick={() => setSelectedFan(row.original)}
+        >
+          <Eye className="h-3.5 w-3.5" />
+          View
+        </Button>
+      ),
+    },
+  ];
 
   // Filter fans based on selected filters
   const filteredFans = useMemo(() => {
@@ -211,7 +256,7 @@ export default function FansPage() {
   ];
 
   return (
-    <div className="min-h-screen space-y-6 p-6">
+    <div className="space-y-6 p-6">
       {/* Header Section */}
       <div className="animate-fade-in flex items-center justify-between">
         <div>
@@ -231,7 +276,7 @@ export default function FansPage() {
 
       {/* Stats Cards Row */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 animate-slide-up">
-        <div className="group relative overflow-hidden rounded-xl border border-slate-800/50 bg-gradient-to-br from-slate-900/50 to-slate-900/30 backdrop-blur-xl p-6 transition-all duration-300 hover:border-slate-700/50 hover:shadow-lg hover:shadow-violet-500/5">
+        <div className="group relative overflow-hidden rounded-xl border border-slate-800/50 bg-gradient-to-br from-slate-900 to-slate-900/80 p-6 transition-colors duration-200 hover:border-slate-700/50">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-400">Total Fans</p>
@@ -245,7 +290,7 @@ export default function FansPage() {
           </div>
         </div>
 
-        <div className="group relative overflow-hidden rounded-xl border border-slate-800/50 bg-gradient-to-br from-slate-900/50 to-slate-900/30 backdrop-blur-xl p-6 transition-all duration-300 hover:border-slate-700/50 hover:shadow-lg hover:shadow-emerald-500/5">
+        <div className="group relative overflow-hidden rounded-xl border border-slate-800/50 bg-gradient-to-br from-slate-900 to-slate-900/80 p-6 transition-colors duration-200 hover:border-slate-700/50">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-400">
@@ -261,7 +306,7 @@ export default function FansPage() {
           </div>
         </div>
 
-        <div className="group relative overflow-hidden rounded-xl border border-slate-800/50 bg-gradient-to-br from-slate-900/50 to-slate-900/30 backdrop-blur-xl p-6 transition-all duration-300 hover:border-slate-700/50 hover:shadow-lg hover:shadow-amber-500/5">
+        <div className="group relative overflow-hidden rounded-xl border border-slate-800/50 bg-gradient-to-br from-slate-900 to-slate-900/80 p-6 transition-colors duration-200 hover:border-slate-700/50">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-400">Total Revenue</p>
@@ -279,7 +324,7 @@ export default function FansPage() {
           </div>
         </div>
 
-        <div className="group relative overflow-hidden rounded-xl border border-slate-800/50 bg-gradient-to-br from-slate-900/50 to-slate-900/30 backdrop-blur-xl p-6 transition-all duration-300 hover:border-slate-700/50 hover:shadow-lg hover:shadow-blue-500/5">
+        <div className="group relative overflow-hidden rounded-xl border border-slate-800/50 bg-gradient-to-br from-slate-900 to-slate-900/80 p-6 transition-colors duration-200 hover:border-slate-700/50">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-400">
@@ -318,7 +363,7 @@ export default function FansPage() {
                 key={filter.value}
                 onClick={() => setSelectedTier(filter.value)}
                 className={cn(
-                  "rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200",
+                  "rounded-lg px-4 py-2.5 min-h-[44px] flex items-center text-xs font-medium transition-all duration-200",
                   selectedTier === filter.value
                     ? "bg-violet-500 text-white shadow-lg shadow-violet-500/25"
                     : "bg-slate-800/50 text-slate-400 hover:bg-slate-800 hover:text-white"
@@ -395,6 +440,13 @@ export default function FansPage() {
           emptyDescription="Try adjusting your filters or search query"
         />
       </div>
+
+      {/* Fan Details Modal */}
+      <FanDetailsModal
+        fan={selectedFan}
+        open={!!selectedFan}
+        onClose={() => setSelectedFan(null)}
+      />
     </div>
   );
 }

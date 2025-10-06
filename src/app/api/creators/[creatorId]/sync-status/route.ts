@@ -1,8 +1,18 @@
 import { NextResponse } from "next/server";
+import { SyncProgress } from "@/lib/services/data-sync";
+
+interface SyncStatus extends SyncProgress {
+  isCurrentlySyncing: boolean;
+  lastSyncAt?: Date | null;
+  itemsSynced?: {
+    transactions: number;
+    fans: number;
+  };
+}
 
 // Import the same sync status storage from sync route
 // In production, this would query the database
-const syncStatuses = new Map<string, any>();
+const syncStatuses = new Map<string, SyncStatus>();
 
 export async function GET(
   request: Request,

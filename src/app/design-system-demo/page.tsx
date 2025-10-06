@@ -118,7 +118,7 @@ export default function DesignSystemDemo() {
               Design System Demo
             </h1>
             <p className="text-muted-foreground mt-2">
-              Linear-inspired OnlyFans Agency CRM Components
+              Linear-inspired VaultCRM Components
             </p>
           </div>
           <Button onClick={() => setOpen(true)} variant="outline">

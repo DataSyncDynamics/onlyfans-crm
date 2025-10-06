@@ -5,7 +5,6 @@ import { MessageSquare, DollarSign, Clock, Award } from "lucide-react";
 
 interface ChatterPerformanceCardProps {
   chatter: Chatter;
-  rank?: number;
 }
 
 const getPerformanceGrade = (score: number): string => {
@@ -31,7 +30,7 @@ const getGradeColor = (grade: string): string => {
   }
 };
 
-export function ChatterPerformanceCard({ chatter, rank }: ChatterPerformanceCardProps) {
+export function ChatterPerformanceCard({ chatter }: ChatterPerformanceCardProps) {
   const grade = getPerformanceGrade(chatter.performanceScore);
   const gradeColor = getGradeColor(grade);
 

@@ -68,7 +68,7 @@ export function ConnectOnlyFansModal({
           {/* Benefits Section */}
           <div className="rounded-xl border border-slate-800/50 bg-slate-900/30 p-6">
             <h3 className="text-lg font-semibold text-white mb-4">
-              What you'll get:
+              What you&apos;ll get:
             </h3>
             <div className="space-y-3">
               <div className="flex items-start gap-3">
@@ -152,7 +152,7 @@ export function ConnectOnlyFansModal({
                   <h5 className="text-sm font-medium text-white">Initial Sync</h5>
                 </div>
                 <p className="text-xs text-slate-400">
-                  We'll pull your last 90 days of data
+                  We&apos;ll pull your last 90 days of data
                 </p>
               </div>
 

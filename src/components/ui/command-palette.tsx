@@ -54,7 +54,7 @@ export function CommandPalette({
 }: CommandPaletteProps) {
   const router = useRouter()
 
-  // Default command groups for OnlyFans CRM
+  // Default command groups for VaultCRM
   const defaultGroups: CommandGroup[] = [
     {
       heading: "Navigation",
@@ -179,8 +179,8 @@ export function CommandPalette({
       <CommandList>
         <CommandEmpty>
           <div className="flex flex-col items-center justify-center py-6 text-center">
-            <p className="text-sm font-medium">No results found</p>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-sm font-medium text-white">No results found</p>
+            <p className="text-xs text-slate-400 mt-1">
               Try searching for something else
             </p>
           </div>
@@ -197,18 +197,18 @@ export function CommandPalette({
                   className="flex items-center gap-2"
                 >
                   {item.icon && (
-                    <item.icon className="h-4 w-4 text-muted-foreground" />
+                    <item.icon className="h-4 w-4 text-slate-400" />
                   )}
                   <div className="flex-1">
-                    <div className="font-medium">{item.label}</div>
+                    <div className="font-medium text-white">{item.label}</div>
                     {item.description && (
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-slate-400">
                         {item.description}
                       </div>
                     )}
                   </div>
                   {item.shortcut && (
-                    <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                    <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-slate-700 bg-slate-800 px-1.5 font-mono text-[10px] font-medium text-slate-400 opacity-100">
                       {item.shortcut}
                     </kbd>
                   )}
@@ -230,18 +230,18 @@ export function CommandPalette({
                   className="flex items-center gap-2"
                 >
                   {item.icon && (
-                    <item.icon className="h-4 w-4 text-muted-foreground" />
+                    <item.icon className="h-4 w-4 text-slate-400" />
                   )}
                   <div className="flex-1">
-                    <div className="font-medium">{item.label}</div>
+                    <div className="font-medium text-white">{item.label}</div>
                     {item.description && (
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-slate-400">
                         {item.description}
                       </div>
                     )}
                   </div>
                   {item.shortcut && (
-                    <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                    <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-slate-700 bg-slate-800 px-1.5 font-mono text-[10px] font-medium text-slate-400 opacity-100">
                       {item.shortcut}
                     </kbd>
                   )}
@@ -254,10 +254,10 @@ export function CommandPalette({
       </CommandList>
 
       {/* Footer hint */}
-      <div className="border-t border-border p-2">
-        <p className="text-xs text-muted-foreground text-center">
+      <div className="border-t border-slate-800 p-2">
+        <p className="text-xs text-slate-400 text-center">
           Press{" "}
-          <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium">
+          <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-slate-700 bg-slate-800 px-1.5 font-mono text-[10px] font-medium text-slate-400">
             ⌘K
           </kbd>{" "}
           to toggle

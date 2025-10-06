@@ -124,7 +124,7 @@ export default function ChattersPage() {
   const topPerformers = rankedChatters.slice(0, 3);
 
   return (
-    <div className="min-h-screen space-y-6 p-6">
+    <div className="space-y-6 p-6">
       {/* Header */}
       <div className="animate-fade-in flex items-start justify-between">
         <div>
@@ -208,28 +208,28 @@ export default function ChattersPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-800/50">
-                <th className="pb-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                <th className="pb-3 px-2 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
                   Rank
                 </th>
-                <th className="pb-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                <th className="pb-3 px-2 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
                   Chatter
                 </th>
-                <th className="pb-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                <th className="pb-3 px-2 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
                   Assigned Creators
                 </th>
-                <th className="pb-3 text-right text-xs font-medium text-slate-400 uppercase tracking-wider">
+                <th className="pb-3 px-4 text-center text-xs font-medium text-slate-400 uppercase tracking-wider">
                   Messages
                 </th>
-                <th className="pb-3 text-right text-xs font-medium text-slate-400 uppercase tracking-wider">
+                <th className="pb-3 px-4 text-center text-xs font-medium text-slate-400 uppercase tracking-wider">
                   Revenue
                 </th>
-                <th className="pb-3 text-right text-xs font-medium text-slate-400 uppercase tracking-wider">
+                <th className="pb-3 px-4 text-center text-xs font-medium text-slate-400 uppercase tracking-wider">
                   Avg Response
                 </th>
-                <th className="pb-3 text-center text-xs font-medium text-slate-400 uppercase tracking-wider">
+                <th className="pb-3 px-4 text-center text-xs font-medium text-slate-400 uppercase tracking-wider">
                   Score
                 </th>
-                <th className="pb-3 text-center text-xs font-medium text-slate-400 uppercase tracking-wider">
+                <th className="pb-3 px-4 text-center text-xs font-medium text-slate-400 uppercase tracking-wider">
                   Status
                 </th>
               </tr>
@@ -284,28 +284,28 @@ export default function ChattersPage() {
                     </td>
 
                     {/* Messages */}
-                    <td className="py-4 text-right">
+                    <td className="py-4 px-4 text-center">
                       <span className="text-sm font-medium text-white">
                         {chatter.messageCount.toLocaleString()}
                       </span>
                     </td>
 
                     {/* Revenue */}
-                    <td className="py-4 text-right">
+                    <td className="py-4 px-4 text-center">
                       <span className="text-sm font-semibold text-green-400">
                         ${(chatter.revenueGenerated / 1000).toFixed(0)}k
                       </span>
                     </td>
 
                     {/* Avg Response Time */}
-                    <td className="py-4 text-right">
+                    <td className="py-4 px-4 text-center">
                       <span className="text-sm text-slate-300">
                         {chatter.avgResponseTime.toFixed(1)}m
                       </span>
                     </td>
 
                     {/* Performance Score */}
-                    <td className="py-4">
+                    <td className="py-4 px-4">
                       <div className="flex items-center justify-center gap-2">
                         <div
                           className={`flex h-8 w-8 items-center justify-center rounded-lg border ${gradeColor}`}
@@ -319,7 +319,7 @@ export default function ChattersPage() {
                     </td>
 
                     {/* Status */}
-                    <td className="py-4">
+                    <td className="py-4 px-4">
                       <div className="flex items-center justify-center gap-2">
                         {getStatusDot(chatter.status)}
                         <span className="text-xs capitalize text-slate-400">
@@ -345,11 +345,10 @@ export default function ChattersPage() {
               <h2 className="text-xl font-semibold text-white">Top Performers</h2>
             </div>
             <div className="grid gap-4 md:grid-cols-3">
-              {topPerformers.map((chatter, index) => (
+              {topPerformers.map((chatter) => (
                 <ChatterPerformanceCard
                   key={chatter.id}
                   chatter={chatter}
-                  rank={index + 1}
                 />
               ))}
             </div>

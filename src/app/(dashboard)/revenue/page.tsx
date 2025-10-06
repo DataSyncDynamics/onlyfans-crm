@@ -3,12 +3,15 @@
 import { useState, useMemo } from "react";
 import { MetricCard } from "@/components/ui/metric-card";
 import { RevenueChart } from "@/components/dashboard/revenue-chart";
+import { CreatorDetailsModal } from "@/components/dashboard/creator-details-modal";
 import {
   calculateDailyRevenue,
   TRANSACTIONS,
   CREATORS,
+  FANS,
   getCreatorById,
 } from "@/lib/mock-data";
+import { Creator } from "@/types";
 import {
   DollarSign,
   TrendingUp,
@@ -21,8 +24,14 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+interface CreatorWithMetrics extends Creator {
+  avgRevenuePerFan: number;
+  revenueData: number[];
+}
+
 export default function RevenuePage() {
   const [selectedPeriod, setSelectedPeriod] = useState<7 | 30 | 90>(30);
+  const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null);
 
   // Calculate date ranges
   const dateRanges = useMemo(() => {
@@ -155,8 +164,58 @@ export default function RevenuePage() {
     setSelectedPeriod(period);
   };
 
+  // Calculate metrics for selected creator
+  const selectedCreatorWithMetrics = useMemo<CreatorWithMetrics | null>(() => {
+    if (!selectedCreator) return null;
+
+    // Get fans for this creator
+    const creatorFans = FANS.filter((f) => f.creatorId === selectedCreator.id);
+    const activeFans = creatorFans.filter((f) => f.subscriptionStatus === "active");
+
+    // Get transactions for this creator
+    const creatorTransactions = TRANSACTIONS.filter(
+      (t) => t.creatorId === selectedCreator.id && t.status === "completed"
+    );
+
+    // Calculate total revenue from actual transactions
+    const totalRevenue = creatorTransactions.reduce((sum, t) => sum + t.amount, 0);
+
+    // Calculate 7-day revenue sparkline
+    const revenueData: number[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dayStart = new Date(date.setHours(0, 0, 0, 0));
+      const dayEnd = new Date(date.setHours(23, 59, 59, 999));
+
+      const dayRevenue = TRANSACTIONS.filter(
+        (t) =>
+          t.creatorId === selectedCreator.id &&
+          t.createdAt >= dayStart &&
+          t.createdAt <= dayEnd &&
+          t.status === "completed"
+      ).reduce((sum, t) => sum + t.amount, 0);
+
+      revenueData.push(dayRevenue);
+    }
+
+    // Calculate average revenue per fan
+    const avgRevenuePerFan = creatorFans.length > 0
+      ? totalRevenue / creatorFans.length
+      : 0;
+
+    return {
+      ...selectedCreator,
+      totalFans: creatorFans.length,
+      activeFans: activeFans.length,
+      totalRevenue,
+      avgRevenuePerFan,
+      revenueData,
+    };
+  }, [selectedCreator]);
+
   return (
-    <div className="min-h-screen space-y-6 p-6">
+    <div className="space-y-6 p-6">
       {/* Header Section */}
       <div className="animate-fade-in flex items-center justify-between">
         <div>
@@ -357,7 +416,8 @@ export default function RevenuePage() {
               return (
                 <div
                   key={creator.id}
-                  className="group relative overflow-hidden rounded-lg border border-slate-800/50 bg-slate-900/30 p-4 transition-all duration-300 hover:border-slate-700/50 hover:shadow-lg hover:shadow-purple-500/5"
+                  onClick={() => setSelectedCreator(creator)}
+                  className="group relative overflow-hidden rounded-lg border border-slate-800/50 bg-slate-900/30 p-4 transition-all duration-300 hover:border-slate-700/50 hover:shadow-lg hover:shadow-purple-500/5 cursor-pointer"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
@@ -430,6 +490,13 @@ export default function RevenuePage() {
           </div>
         </div>
       </div>
+
+      {/* Creator Details Modal */}
+      <CreatorDetailsModal
+        creator={selectedCreatorWithMetrics}
+        open={!!selectedCreator}
+        onClose={() => setSelectedCreator(null)}
+      />
     </div>
   );
 }

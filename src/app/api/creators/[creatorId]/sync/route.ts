@@ -1,9 +1,18 @@
 import { NextResponse } from "next/server";
-import { DataSyncService } from "@/lib/services/data-sync";
+import { DataSyncService, SyncProgress } from "@/lib/services/data-sync";
 import { CREATORS } from "@/lib/mock-data";
 
+interface SyncStatus extends SyncProgress {
+  isCurrentlySyncing: boolean;
+  lastSyncAt?: Date;
+  itemsSynced?: {
+    transactions: number;
+    fans: number;
+  };
+}
+
 // In-memory storage for sync status (temporary - replace with database)
-const syncStatuses = new Map<string, any>();
+const syncStatuses = new Map<string, SyncStatus>();
 
 export async function POST(
   request: Request,
@@ -59,7 +68,7 @@ export async function POST(
       syncStatuses.set(creatorId, {
         isCurrentlySyncing: false,
         stage: result.success ? "completed" : "error",
-        message: result.success ? "Sync completed" : result.error,
+        message: result.success ? "Sync completed" : (result.error || "Sync failed"),
         progress: result.success ? 100 : 0,
         lastSyncAt: result.syncedAt,
         itemsSynced: result.itemsSynced,

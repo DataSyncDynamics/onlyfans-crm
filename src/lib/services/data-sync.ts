@@ -132,7 +132,10 @@ export class DataSyncService {
       // Create a map of OF user ID to our fan ID for transaction mapping
       const fanIdMap = new Map<string, string>();
       ofSubscribers.forEach((ofSub, index) => {
-        fanIdMap.set(ofSub.id, fans[index].id);
+        const fan = fans[index];
+        if (fan) {
+          fanIdMap.set(ofSub.id, fan.id);
+        }
       });
 
       // Map OF transactions to our Transaction model
@@ -209,7 +212,7 @@ export class DataSyncService {
 
     try {
       // Fetch only new transactions since last sync
-      const ofTransactions = await OnlyFansAPI.getTransactionHistory(
+      await OnlyFansAPI.getTransactionHistory(
         ofUsername,
         accessToken,
         lastSyncDate
@@ -283,7 +286,8 @@ export class DataSyncService {
   /**
    * Get sync status for a creator
    */
-  static async getSyncStatus(creatorId: string): Promise<{
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  static async getSyncStatus(_creatorId: string): Promise<{
     lastSyncAt: Date | null;
     syncEnabled: boolean;
     isCurrentlySyncing: boolean;
@@ -300,7 +304,8 @@ export class DataSyncService {
   /**
    * Enable/disable auto-sync for creator
    */
-  static async setSyncEnabled(creatorId: string, enabled: boolean): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  static async setSyncEnabled(_creatorId: string, _enabled: boolean): Promise<void> {
     // TODO: Update in database
   }
 }

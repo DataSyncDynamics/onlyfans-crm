@@ -1,4 +1,4 @@
-# Quick Start Guide - OnlyFans CRM Design System
+# Quick Start Guide - VaultCRM Design System
 
 ## Installation Complete ✓
 
@@ -353,4 +353,4 @@ Demo:
 
 ---
 
-**You're all set! Start building your OnlyFans CRM dashboard.** 🚀
+**You're all set! Start building your VaultCRM dashboard.** 🚀

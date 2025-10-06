@@ -334,7 +334,7 @@ export function AddCreatorModal({ open, onClose, onSubmit, onConnectRequested }:
                   <Label htmlFor="status">
                     Status <span className="text-red-500">*</span>
                   </Label>
-                  <Select value={status} onValueChange={(value: any) => setStatus(value)}>
+                  <Select value={status} onValueChange={(value: "active" | "inactive" | "suspended") => setStatus(value)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>

@@ -50,12 +50,13 @@ export function MetricCard({
         group relative overflow-hidden border-slate-800/50
         bg-gradient-to-br from-slate-900/50 to-slate-900/30
         backdrop-blur-xl transition-all duration-300
-        hover:border-slate-700/50 hover:shadow-lg hover:shadow-purple-500/5
+        hover:border-slate-700/50 hover:shadow-lg hover:shadow-purple-500/10
+        hover:scale-[1.02]
         ${variant === "large" ? "col-span-2" : ""}
       `}
     >
       {/* Gradient glow effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-pink-500/0 opacity-0 transition-opacity duration-300 group-hover:opacity-5" />
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-pink-500/0 opacity-0 transition-opacity duration-300 group-hover:opacity-10" />
 
       <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-slate-400">

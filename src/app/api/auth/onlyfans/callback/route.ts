@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { OnlyFansAuth } from "@/lib/integrations/onlyfans-auth";
-import { DataSyncService } from "@/lib/services/data-sync";
 
 export async function GET(request: Request) {
   try {
@@ -33,18 +32,11 @@ export async function GET(request: Request) {
 
     // Store tokens in database (encrypted)
     // TODO: Replace with Supabase storage
-    const encryptedAccessToken = OnlyFansAuth.encryptToken(tokens.accessToken);
-    const encryptedRefreshToken = OnlyFansAuth.encryptToken(tokens.refreshToken);
+    OnlyFansAuth.encryptToken(tokens.accessToken);
+    OnlyFansAuth.encryptToken(tokens.refreshToken);
 
     // For now, store in memory/session (temporary)
-    // In production, save to Supabase:
-    // await supabase.from('creator_auth').insert({
-    //   creator_id: creatorId,
-    //   platform: 'onlyfans',
-    //   access_token: encryptedAccessToken,
-    //   refresh_token: encryptedRefreshToken,
-    //   token_expires_at: tokens.expiresAt,
-    // });
+    // In production, save to Supabase with encrypted tokens
 
     // Trigger initial data sync (in background)
     // This will be handled by the sync endpoint after redirect

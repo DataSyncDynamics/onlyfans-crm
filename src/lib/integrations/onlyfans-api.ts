@@ -8,7 +8,6 @@ import { Creator, Fan, Transaction } from "@/types";
 // API Configuration
 const ONLYFANS_API_BASE_URL = process.env.ONLYFANS_API_URL || "https://onlyfans.com/api2/v2";
 const ONLYFANS_API_KEY = process.env.ONLYFANS_API_KEY;
-const ONLYFANS_API_SECRET = process.env.ONLYFANS_API_SECRET;
 
 // Rate limiting
 const RATE_LIMIT_DELAY = 1000; // 1 second between requests
@@ -38,9 +37,9 @@ async function makeRequest<T>(
 ): Promise<T> {
   await rateLimit();
 
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    ...options.headers,
+    ...(options.headers as Record<string, string>),
   };
 
   // Add authentication

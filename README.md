@@ -1,6 +1,6 @@
-# OnlyFans CRM
+# VaultCRM
 
-Professional CRM for OnlyFans creators and agencies.
+Professional CRM for OnlyFans creators and agencies - Powered by DataSync Dynamics.
 
 ## Features
 
