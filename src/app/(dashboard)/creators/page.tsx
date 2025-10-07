@@ -42,7 +42,6 @@ export default function CreatorsPage() {
   const [addCreatorOpen, setAddCreatorOpen] = useState(false);
   const [connectModalOpen, setConnectModalOpen] = useState(false);
   const [connectCreatorData, setConnectCreatorData] = useState<{ id: string; ofUsername: string } | null>(null);
-  const [refreshKey, setRefreshKey] = useState(0);
 
   // Calculate enhanced creator data with metrics
   const creatorsWithMetrics = useMemo<CreatorWithMetrics[]>(() => {
@@ -92,7 +91,7 @@ export default function CreatorsPage() {
         revenueData,
       };
     });
-  }, [refreshKey]);
+  }, []);
 
   // Agency-wide stats
   const agencyStats = useMemo(() => {
@@ -194,7 +193,7 @@ export default function CreatorsPage() {
 
   const handleAddCreator = async (creatorData: Omit<Creator, "id" | "totalRevenue" | "totalFans" | "activeFans" | "joinedAt">): Promise<string> => {
     const newCreator = addCreator(creatorData);
-    setRefreshKey((prev) => prev + 1); // Trigger re-render
+    // Note: In production, this would trigger a re-fetch from Supabase
     return newCreator.id;
   };
 
@@ -207,7 +206,7 @@ export default function CreatorsPage() {
     const success = archiveCreator(creatorId);
     if (success) {
       setSelectedCreator(null); // Close the details modal
-      setRefreshKey((prev) => prev + 1); // Refresh the creator list
+      // Note: In production, this would trigger a re-fetch from Supabase
     }
   };
 

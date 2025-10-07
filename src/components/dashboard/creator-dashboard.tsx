@@ -24,12 +24,14 @@ export function CreatorDashboard() {
 
   // Filter data to only this creator's data
   const creatorFans = useMemo(() => {
+    if (!currentCreator) return [];
     return FANS.filter(fan => fan.creatorId === currentCreator.id);
-  }, [currentCreator.id]);
+  }, [currentCreator]);
 
   const creatorTransactions = useMemo(() => {
+    if (!currentCreator) return [];
     return TRANSACTIONS.filter(t => t.creatorId === currentCreator.id);
-  }, [currentCreator.id]);
+  }, [currentCreator]);
 
   // Calculate metrics for this creator only
   const activeFans = useMemo(() => {
@@ -108,6 +110,11 @@ export function CreatorDashboard() {
   }, [creatorTransactions]);
 
   const revenueSparkline = last7DaysRevenue.map((d) => d.amount);
+
+  // If no creator data, return null
+  if (!currentCreator) {
+    return null;
+  }
 
   return (
     <div className="space-y-6 p-6">

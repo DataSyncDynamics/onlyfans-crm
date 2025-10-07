@@ -312,4 +312,24 @@
   p {
     @apply leading-relaxed;
   }
+
+  /* Mobile Touch Target Accessibility - iOS/Android Guidelines */
+  button,
+  a[href],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  select,
+  [role="button"],
+  [role="link"],
+  [tabindex="0"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Ensure proper padding for text elements inside touch targets */
+  button,
+  a[href] {
+    @apply px-3 py-2;
+  }
 }

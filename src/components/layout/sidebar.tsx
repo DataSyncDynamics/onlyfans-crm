@@ -20,7 +20,7 @@ import {
 import { useState, useEffect } from "react";
 import { UserMenu } from "@/components/ui/user-menu";
 import { KeyboardShortcutsModal } from "@/components/ui/keyboard-shortcuts-modal";
-import { useRole, type UserRole } from "@/contexts/role-context";
+import { useRole } from "@/contexts/role-context";
 
 const allNavigation = [
   { name: "Overview", href: "/", icon: LayoutDashboard, roles: ["agency_owner", "creator", "chatter"] },

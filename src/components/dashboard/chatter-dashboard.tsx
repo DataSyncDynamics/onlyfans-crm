@@ -27,10 +27,6 @@ export function ChatterDashboard() {
 
   const assignedCreatorIds = assignedCreators.map(c => c.id);
 
-  // Filter fans to only assigned creators
-  const assignedFans = useMemo(() => {
-    return FANS.filter(fan => assignedCreatorIds.includes(fan.creatorId));
-  }, [assignedCreatorIds]);
 
   // Filter transactions to this chatter's work
   const chatterTransactions = useMemo(() => {
@@ -138,6 +134,18 @@ export function ChatterDashboard() {
     });
     return sparklines;
   }, [assignedCreators, chatterTransactions]);
+
+  // If no chatter data, show error
+  if (!currentChatter) {
+    return (
+      <div className="flex min-h-screen items-center justify-center p-6">
+        <Card className="p-8 text-center max-w-md">
+          <h2 className="text-xl font-semibold text-white mb-2">No Chatter Found</h2>
+          <p className="text-slate-400">Unable to load chatter data.</p>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 p-6">

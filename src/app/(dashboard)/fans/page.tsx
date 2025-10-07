@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, Row } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { FanDetailsModal } from "@/components/dashboard/fan-details-modal";
@@ -124,7 +124,7 @@ export default function FansPage() {
           {
             accessorKey: "totalSpent",
             header: () => <div className="text-center">Total Spent</div>,
-            cell: ({ row }: { row: any }) => (
+            cell: ({ row }: { row: Row<Fan> }) => (
               <div className="text-center">
                 <span className="font-semibold text-emerald-400">
                   ${row.original.totalSpent.toLocaleString("en-US", {
@@ -140,7 +140,7 @@ export default function FansPage() {
           {
             accessorKey: "messageCount",
             header: () => <div className="text-center">Engagement</div>,
-            cell: ({ row }: { row: any }) => {
+            cell: ({ row }: { row: Row<Fan> }) => {
               // Calculate engagement score (0-100) based on message count and tier
               const score = Math.min(100, (row.original.messageCount / 10) * 50 + (
                 row.original.tier === "whale" ? 50 :

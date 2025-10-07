@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Upload, X, Image as ImageIcon, Video, FileText } from "lucide-react";
+import Image from "next/image";
+import { Upload, X, Image as ImageIcon, Video } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface UploadedFile {
@@ -139,10 +140,12 @@ export function UploadZone({ onFilesUploaded }: UploadZoneProps) {
               className="relative group aspect-square rounded-lg overflow-hidden bg-slate-800/50 border border-slate-700"
             >
               {file.type === "image" ? (
-                <img
+                <Image
                   src={file.preview}
                   alt={file.file.name}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  unoptimized
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-slate-800">

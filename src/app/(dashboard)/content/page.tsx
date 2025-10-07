@@ -162,7 +162,7 @@ export default function ContentPage() {
                       <Info className="h-3.5 w-3.5 text-slate-500 hover:text-slate-300 cursor-pointer transition-colors" />
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Content pieces you've uploaded in the last 7 days</p>
+                      <p>Content pieces you&apos;ve uploaded in the last 7 days</p>
                     </TooltipContent>
                   </Tooltip>
                 </div>

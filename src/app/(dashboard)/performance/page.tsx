@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { useRole } from "@/contexts/role-context";
 import { Card } from "@/components/ui/card";
-import { CHATTERS, CREATORS, TRANSACTIONS, FANS } from "@/lib/mock-data";
+import { CHATTERS, CREATORS, TRANSACTIONS } from "@/lib/mock-data";
 import {
-  TrendingUp,
   MessageSquare,
   Users,
   Clock,
@@ -18,19 +17,6 @@ import { cn } from "@/lib/utils";
 
 export default function PerformancePage() {
   const { role } = useRole();
-  const [selectedPeriod, setSelectedPeriod] = useState<"week" | "month" | "all">("month");
-
-  // If not a chatter, redirect or show error
-  if (role !== "chatter") {
-    return (
-      <div className="flex min-h-screen items-center justify-center p-6">
-        <Card className="p-8 text-center max-w-md">
-          <h2 className="text-xl font-semibold text-white mb-2">Access Denied</h2>
-          <p className="text-slate-400">This page is only available to chatters.</p>
-        </Card>
-      </div>
-    );
-  }
 
   // Mock: Current chatter is Emma Wilson
   const currentChatter = CHATTERS[0];
@@ -97,6 +83,30 @@ export default function PerformancePage() {
 
   const maxDayCount = Math.max(...activityByDay.map(d => d.count), 1);
 
+  // If not a chatter, show access denied
+  if (role !== "chatter") {
+    return (
+      <div className="flex min-h-screen items-center justify-center p-6">
+        <Card className="p-8 text-center max-w-md">
+          <h2 className="text-xl font-semibold text-white mb-2">Access Denied</h2>
+          <p className="text-slate-400">This page is only available to chatters.</p>
+        </Card>
+      </div>
+    );
+  }
+
+  // If no chatter data, show error
+  if (!currentChatter) {
+    return (
+      <div className="flex min-h-screen items-center justify-center p-6">
+        <Card className="p-8 text-center max-w-md">
+          <h2 className="text-xl font-semibold text-white mb-2">No Chatter Found</h2>
+          <p className="text-slate-400">Unable to load chatter data.</p>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
@@ -121,7 +131,7 @@ export default function PerformancePage() {
               </div>
             </div>
             <p className="mt-4 text-sm text-slate-300">
-              You're in the top 10% of the team! Keep up the excellent work.
+              You&apos;re in the top 10% of the team! Keep up the excellent work.
             </p>
           </div>
           <div className="text-right">

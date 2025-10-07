@@ -22,8 +22,22 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} antialiased`}>
+        {/* Skip to main content link for screen readers */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded-lg"
+        >
+          Skip to main content
+        </a>
         <AuthProvider>
           <RoleProvider>
+            {/* ARIA live region for announcements */}
+            <div
+              aria-live="polite"
+              aria-atomic="true"
+              className="sr-only"
+              id="aria-announcements"
+            />
             {children}
           </RoleProvider>
         </AuthProvider>
