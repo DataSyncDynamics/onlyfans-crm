@@ -16,29 +16,38 @@ import {
   ChevronDown,
   TrendingUp,
   Upload,
+  ChevronRight,
+  Check,
+  Send,
+  Calendar,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { UserMenu } from "@/components/ui/user-menu";
 import { KeyboardShortcutsModal } from "@/components/ui/keyboard-shortcuts-modal";
 import { useRole } from "@/contexts/role-context";
+import { CREATORS } from "@/lib/mock-data";
 
 const allNavigation = [
   { name: "Overview", href: "/", icon: LayoutDashboard, roles: ["agency_owner", "creator", "chatter"] },
   { name: "Creators", href: "/creators", icon: Users, roles: ["agency_owner"] },
   { name: "Fans", href: "/fans", icon: Heart, roles: ["agency_owner", "creator", "chatter"] },
+  { name: "Campaigns", href: "/campaigns", icon: Send, roles: ["agency_owner", "creator", "chatter"] },
+  { name: "AI Chat", href: "/chat", icon: MessageSquare, roles: ["agency_owner", "chatter"], badge: 12 },
   { name: "Revenue", href: "/revenue", icon: DollarSign, roles: ["agency_owner", "creator"] },
-  { name: "Content", href: "/content", icon: Upload, roles: ["agency_owner", "creator"] },
-  { name: "My Performance", href: "/performance", icon: TrendingUp, roles: ["chatter"] },
   { name: "Chatters", href: "/chatters", icon: MessageSquare, roles: ["agency_owner"] },
+  { name: "Schedule", href: "/schedule", icon: Calendar, roles: ["agency_owner"] },
+  { name: "My Performance", href: "/performance", icon: TrendingUp, roles: ["chatter"] },
+  { name: "Content", href: "/content", icon: Upload, roles: ["agency_owner", "creator"] },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { role, setRole, userName } = useRole();
+  const { role, setRole, selectedCreatorId, setSelectedCreatorId, userName, userHandle } = useRole();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isRoleSwitcherOpen, setIsRoleSwitcherOpen] = useState(false);
   const [isKeyboardShortcutsOpen, setIsKeyboardShortcutsOpen] = useState(false);
+  const [isCreatorSubmenuOpen, setIsCreatorSubmenuOpen] = useState(false);
 
   // Filter navigation based on role
   const navigation = allNavigation.filter(item => item.roles.includes(role));
@@ -85,7 +94,7 @@ export function Sidebar() {
               href={item.href}
               onClick={() => setIsMobileMenuOpen(false)}
               className={cn(
-                "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 relative",
                 isActive
                   ? "bg-blue-500/10 text-blue-400 shadow-lg shadow-blue-500/20"
                   : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
@@ -100,7 +109,12 @@ export function Sidebar() {
                 )}
               />
               <span>{item.name}</span>
-              {isActive && (
+              {item.badge && item.badge > 0 && (
+                <span className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-purple-500 px-1.5 text-[10px] font-bold text-white">
+                  {item.badge > 99 ? '99+' : item.badge}
+                </span>
+              )}
+              {isActive && !item.badge && (
                 <div className="ml-auto h-1.5 w-1.5 rounded-full bg-blue-400" />
               )}
             </Link>
@@ -119,12 +133,14 @@ export function Sidebar() {
               : "hover:bg-slate-800/50"
           )}
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500 ring-2 ring-slate-800">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500 ring-2 ring-slate-800 flex-shrink-0">
             <User className="h-4 w-4 text-white" />
           </div>
-          <div className="flex flex-1 flex-col items-start min-w-0">
+          <div className="flex flex-1 flex-col min-w-0">
             <span className="text-sm font-semibold text-white truncate w-full">{userName}</span>
-            <span className="text-xs text-slate-400 capitalize">{role.replace('_', ' ')}</span>
+            <span className="text-xs text-slate-400 truncate w-full">
+              {userHandle || <span className="capitalize">{role.replace('_', ' ')}</span>}
+            </span>
           </div>
           <ChevronDown className={cn(
             "h-4 w-4 text-slate-400 transition-transform duration-200 flex-shrink-0",
@@ -152,20 +168,54 @@ export function Sidebar() {
             >
               Agency Owner
             </button>
-            <button
-              onClick={() => {
-                setRole("creator");
-                setIsRoleSwitcherOpen(false);
-              }}
-              className={cn(
-                "w-full text-left px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-150",
-                role === "creator"
-                  ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md"
-                  : "text-slate-300 hover:bg-slate-800/80 hover:text-white"
+            <div className="relative">
+              <button
+                onClick={() => setIsCreatorSubmenuOpen(!isCreatorSubmenuOpen)}
+                className={cn(
+                  "w-full text-left px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-150 flex items-center justify-between",
+                  role === "creator"
+                    ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md"
+                    : "text-slate-300 hover:bg-slate-800/80 hover:text-white"
+                )}
+              >
+                <span>Creator</span>
+                <ChevronRight className={cn(
+                  "h-4 w-4 transition-transform duration-200",
+                  isCreatorSubmenuOpen && "rotate-90"
+                )} />
+              </button>
+
+              {/* Creator Submenu */}
+              {isCreatorSubmenuOpen && (
+                <div className="mt-1 ml-2 space-y-1 rounded-lg bg-slate-800/50 p-1.5 border border-slate-700/50">
+                  {CREATORS.map((creator) => (
+                    <button
+                      key={creator.id}
+                      onClick={() => {
+                        setRole("creator");
+                        setSelectedCreatorId(creator.id);
+                        setIsRoleSwitcherOpen(false);
+                        setIsCreatorSubmenuOpen(false);
+                      }}
+                      className={cn(
+                        "w-full text-left px-3 py-2 text-xs rounded-md transition-all duration-150 flex items-center justify-between gap-2",
+                        selectedCreatorId === creator.id && role === "creator"
+                          ? "bg-blue-500/20 text-blue-300"
+                          : "text-slate-400 hover:bg-slate-700/50 hover:text-white"
+                      )}
+                    >
+                      <div className="flex flex-col min-w-0 flex-1">
+                        <span className="font-medium truncate">{creator.displayName}</span>
+                        <span className="text-[10px] text-slate-500 truncate">{creator.ofUsername}</span>
+                      </div>
+                      {selectedCreatorId === creator.id && role === "creator" && (
+                        <Check className="h-3 w-3 flex-shrink-0 text-blue-400" />
+                      )}
+                    </button>
+                  ))}
+                </div>
               )}
-            >
-              Creator
-            </button>
+            </div>
             <button
               onClick={() => {
                 setRole("chatter");
@@ -213,7 +263,7 @@ export function Sidebar() {
       {/* Sidebar - Desktop: Fixed, Mobile: Overlay */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-40 w-[260px] border-r border-slate-800/50 bg-slate-950 backdrop-blur-xl transition-transform duration-200 touch-action-pan-y lg:static lg:h-screen lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-40 w-[260px] border-r border-slate-800/50 bg-slate-950 backdrop-blur-xl transition-transform duration-200 touch-action-pan-y lg:fixed lg:h-screen lg:translate-x-0",
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -248,7 +298,7 @@ export function Sidebar() {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  "flex flex-col items-center gap-1 px-3 py-2 rounded-lg min-h-[56px] min-w-[64px] justify-center transition-all active:scale-95",
+                  "flex flex-col items-center gap-1 px-3 py-2 rounded-lg min-h-[56px] min-w-[64px] justify-center transition-all active:scale-95 relative",
                   isActive
                     ? "bg-blue-500/10 text-blue-400"
                     : "text-slate-400 active:bg-slate-800/50"
@@ -261,6 +311,11 @@ export function Sidebar() {
                 )}>
                   {item.name}
                 </span>
+                {item.badge && item.badge > 0 && (
+                  <span className="absolute right-2 top-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-purple-500 px-1 text-[9px] font-bold text-white">
+                    {item.badge > 99 ? '99+' : item.badge}
+                  </span>
+                )}
               </Link>
             );
           })}

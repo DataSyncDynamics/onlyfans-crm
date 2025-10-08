@@ -15,12 +15,17 @@ import {
 } from "@/lib/mock-data";
 import { DollarSign, Users, MessageSquare, TrendingUp } from "lucide-react";
 import { ChatterPerformanceCard } from "./chatter-performance-card";
+import { useRole } from "@/contexts/role-context";
+import { SkeletonCard } from "@/components/ui/skeleton-card";
 
 export function CreatorDashboard() {
   const [selectedPeriod, setSelectedPeriod] = useState<7 | 30 | 90>(30);
+  const { selectedCreatorId, isLoadingCreator } = useRole();
 
-  // Mock: Assume logged-in creator is Bella Rose (first creator)
-  const currentCreator = CREATORS[0];
+  // Get the selected creator based on role context
+  const currentCreator = useMemo(() => {
+    return CREATORS.find(c => c.id === selectedCreatorId) || CREATORS[0];
+  }, [selectedCreatorId]);
 
   // Filter data to only this creator's data
   const creatorFans = useMemo(() => {
@@ -91,10 +96,13 @@ export function CreatorDashboard() {
 
   // Chatters assigned to this creator
   const assignedChatters = useMemo(() => {
+    if (!currentCreator) return [];
     const allChatters = getChatterPerformance();
-    // Mock: Filter chatters assigned to this creator (in real app, check assignments table)
-    return allChatters.slice(0, 3); // For demo, show top 3
-  }, []);
+    // Filter chatters who are assigned to this specific creator
+    return allChatters.filter(chatter =>
+      chatter.assignedCreators.includes(currentCreator.id)
+    );
+  }, [currentCreator]);
 
   // Sparkline for revenue trend
   const last7DaysRevenue = useMemo(() => {
@@ -127,39 +135,58 @@ export function CreatorDashboard() {
       </div>
 
       {/* Hero Metrics Row */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 animate-slide-up">
-        <MetricCard
-          title="My Total Revenue"
-          value={`$${totalRevenue.toLocaleString("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}`}
-          change="+12.5%"
-          trend="up"
-          icon={DollarSign}
-          sparklineData={revenueSparkline}
-        />
-        <MetricCard
-          title="My Active Fans"
-          value={activeFans.toLocaleString()}
-          change="+8.2%"
-          trend="up"
-          icon={Users}
-        />
-        <MetricCard
-          title="Messages Today"
-          value={messagesToday.toLocaleString()}
-          change="-3.1%"
-          trend="down"
-          icon={MessageSquare}
-        />
-        <MetricCard
-          title="Avg Revenue Per Fan"
-          value={`$${avgRevenuePerFan.toFixed(2)}`}
-          change="+5.3%"
-          trend="up"
-          icon={TrendingUp}
-        />
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {isLoadingCreator ? (
+          <>
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </>
+        ) : (
+          <>
+            <div className="animate-fade-in" style={{ animationDelay: '0ms' }}>
+              <MetricCard
+                title="My Total Revenue"
+                value={`$${totalRevenue.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}`}
+                change="+12.5%"
+                trend="up"
+                icon={DollarSign}
+                sparklineData={revenueSparkline}
+              />
+            </div>
+            <div className="animate-fade-in" style={{ animationDelay: '50ms' }}>
+              <MetricCard
+                title="My Active Fans"
+                value={activeFans.toLocaleString()}
+                change="+8.2%"
+                trend="up"
+                icon={Users}
+              />
+            </div>
+            <div className="animate-fade-in" style={{ animationDelay: '100ms' }}>
+              <MetricCard
+                title="Messages Today"
+                value={messagesToday.toLocaleString()}
+                change="-3.1%"
+                trend="down"
+                icon={MessageSquare}
+              />
+            </div>
+            <div className="animate-fade-in" style={{ animationDelay: '150ms' }}>
+              <MetricCard
+                title="Avg Revenue Per Fan"
+                value={`$${avgRevenuePerFan.toFixed(2)}`}
+                change="+5.3%"
+                trend="up"
+                icon={TrendingUp}
+              />
+            </div>
+          </>
+        )}
       </div>
 
       {/* My Team (Assigned Chatters) */}

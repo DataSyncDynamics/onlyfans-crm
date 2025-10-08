@@ -173,8 +173,8 @@ export function FanDetailsModal({
               </div>
             </div>
 
-            {/* Quick Actions */}
-            <div className="flex gap-2">
+            {/* Quick Actions - Positioned below X button */}
+            <div className="flex gap-2 mt-10">
               <Button variant="outline" size="sm" className="gap-2 bg-slate-800/50 hover:bg-slate-800 border-slate-700 text-slate-300 hover:text-white">
                 <Edit className="h-4 w-4" />
                 Edit

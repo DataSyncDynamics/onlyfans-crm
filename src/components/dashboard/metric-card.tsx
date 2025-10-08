@@ -91,24 +91,24 @@ export function MetricCard({
           {/* Sparkline */}
           {sparklineData.length > 0 && (
             <div className="ml-4">
-              <svg width="100" height="40" className="overflow-visible">
+              <svg width="100" height="40" viewBox="0 0 100 40" className="overflow-visible">
                 <defs>
-                  <linearGradient id={`gradient-${title}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor={isPositive ? "#10b981" : "#ef4444"} stopOpacity="0.3" />
-                    <stop offset="100%" stopColor={isPositive ? "#10b981" : "#ef4444"} stopOpacity="0" />
+                  <linearGradient id={`gradient-${title.replace(/\s+/g, '-')}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#a855f7" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#a855f7" stopOpacity={0.05} />
                   </linearGradient>
                 </defs>
                 <path
-                  d={generateSparklinePath(sparklineData)}
-                  fill="none"
-                  stroke={isPositive ? "#10b981" : "#ef4444"}
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+                  d={`${generateSparklinePath(sparklineData)} L 100,40 L 0,40 Z`}
+                  fill={`url(#gradient-${title.replace(/\s+/g, '-')})`}
                 />
                 <path
-                  d={`${generateSparklinePath(sparklineData)} L 100,40 L 0,40 Z`}
-                  fill={`url(#gradient-${title})`}
+                  d={generateSparklinePath(sparklineData)}
+                  fill="none"
+                  stroke="#a855f7"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
               </svg>
             </div>

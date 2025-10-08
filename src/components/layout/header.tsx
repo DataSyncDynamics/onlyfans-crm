@@ -8,7 +8,7 @@ import { CommandPalette } from "@/components/ui/command-palette";
 import { NotificationsPanel } from "@/components/ui/notifications-panel";
 import { UserMenu } from "@/components/ui/user-menu";
 import { KeyboardShortcutsModal } from "@/components/ui/keyboard-shortcuts-modal";
-import { ALERTS } from "@/lib/mock-data";
+import { ALERTS, CHATTERS, CREATORS, FANS } from "@/lib/mock-data";
 
 // Map routes to breadcrumb labels
 const routeLabels: Record<string, string> = {
@@ -57,8 +57,48 @@ export function Header() {
     .filter(Boolean)
     .map((segment, index, arr) => {
       const path = "/" + arr.slice(0, index + 1).join("/");
+
+      // If there's a predefined label, use it
+      if (routeLabels[path]) {
+        return {
+          label: routeLabels[path],
+          path,
+        };
+      }
+
+      // For dynamic routes, look up the actual entity name
+      const previousSegment = arr[index - 1];
+
+      // Chatter profile page
+      if (previousSegment === "chatters" && segment !== "chatters") {
+        const chatter = CHATTERS.find(c => c.id === segment);
+        return {
+          label: chatter?.name || segment,
+          path,
+        };
+      }
+
+      // Creator profile page
+      if (previousSegment === "creators" && segment !== "creators") {
+        const creator = CREATORS.find(c => c.id === segment);
+        return {
+          label: creator?.displayName || segment,
+          path,
+        };
+      }
+
+      // Fan profile page
+      if (previousSegment === "fans" && segment !== "fans") {
+        const fan = FANS.find(f => f.id === segment);
+        return {
+          label: fan?.displayName || fan?.username || segment,
+          path,
+        };
+      }
+
+      // Default: capitalize the segment
       return {
-        label: routeLabels[path] || segment.charAt(0).toUpperCase() + segment.slice(1),
+        label: segment.charAt(0).toUpperCase() + segment.slice(1),
         path,
       };
     });

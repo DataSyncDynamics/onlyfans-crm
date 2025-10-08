@@ -62,7 +62,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       return () => subscription.unsubscribe();
     } catch {
-      console.warn("Supabase not configured. Running in demo mode.");
       setLoading(false);
       return undefined;
     }
@@ -91,8 +90,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const supabase = createClientComponentClient();
         await supabase.auth.signOut();
-      } catch (error) {
-        console.warn("Error signing out from Supabase:", error);
+      } catch {
+        // Silently handle sign-out errors in demo mode
       }
     }
     router.push("/login");

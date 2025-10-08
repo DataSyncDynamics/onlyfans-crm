@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { Fan, Creator } from "@/types";
 import { Crown, TrendingUp } from "lucide-react";
+import { FanDetailsModal } from "@/components/dashboard/fan-details-modal";
 
 interface TopFansTableProps {
   fans: Fan[];
@@ -23,18 +25,34 @@ const tierLabels = {
 };
 
 export function TopFansTable({ fans, creators }: TopFansTableProps) {
+  const [selectedFan, setSelectedFan] = useState<Fan | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const getCreatorName = (creatorId: string) => {
     const creator = creators.find((c) => c.id === creatorId);
     return creator?.displayName || "Unknown";
   };
 
+  const handleFanClick = (fan: Fan) => {
+    setSelectedFan(fan);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    // Delay clearing selected fan until after animation
+    setTimeout(() => setSelectedFan(null), 300);
+  };
+
   return (
-    <div className="space-y-2">
-      {fans.map((fan, index) => (
-        <div
-          key={fan.id}
-          className="group flex items-center gap-3 rounded-lg border border-slate-800/30 bg-slate-900/20 p-3 transition-all hover:border-slate-700/50 hover:bg-slate-800/30 cursor-pointer"
-        >
+    <>
+      <div className="space-y-2">
+        {fans.map((fan, index) => (
+          <div
+            key={fan.id}
+            onClick={() => handleFanClick(fan)}
+            className="group flex items-center gap-3 rounded-lg border border-slate-800/30 bg-slate-900/20 p-3 transition-all hover:border-slate-700/50 hover:bg-slate-800/30 hover:scale-[1.01] cursor-pointer"
+          >
           {/* Rank */}
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-800/50 text-sm font-bold text-slate-400">
             {index < 3 ? (
@@ -74,13 +92,20 @@ export function TopFansTable({ fans, creators }: TopFansTableProps) {
         </div>
       ))}
 
-      {fans.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-8 text-center">
-          <TrendingUp className="mb-3 h-12 w-12 text-slate-600" />
-          <p className="text-sm font-medium text-slate-400">No fans yet</p>
-          <p className="text-xs text-slate-500">Top fans will appear here</p>
-        </div>
-      )}
-    </div>
+        {fans.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <TrendingUp className="mb-3 h-12 w-12 text-slate-600" />
+            <p className="text-sm font-medium text-slate-400">No fans yet</p>
+            <p className="text-xs text-slate-500">Top fans will appear here</p>
+          </div>
+        )}
+      </div>
+
+      <FanDetailsModal
+        fan={selectedFan}
+        open={isModalOpen}
+        onClose={handleCloseModal}
+      />
+    </>
   );
 }

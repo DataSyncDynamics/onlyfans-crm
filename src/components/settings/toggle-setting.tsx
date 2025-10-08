@@ -33,15 +33,15 @@ export function ToggleSetting({
         disabled={disabled}
         onClick={() => onChange(!enabled)}
         className={cn(
-          "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-950 disabled:cursor-not-allowed disabled:opacity-50",
-          enabled ? "bg-blue-500" : "bg-slate-700"
+          "relative inline-flex h-[26px] w-[44px] shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-1 focus:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-50",
+          enabled ? "bg-blue-500" : "bg-slate-700/80"
         )}
       >
         <span
           aria-hidden="true"
           className={cn(
-            "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
-            enabled ? "translate-x-5" : "translate-x-0"
+            "pointer-events-none inline-block h-[22px] w-[22px] transform rounded-full bg-white shadow-lg transition duration-200 ease-in-out",
+            enabled ? "translate-x-[18px] translate-y-0.5" : "translate-x-0.5 translate-y-0.5"
           )}
         />
       </button>

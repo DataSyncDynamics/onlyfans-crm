@@ -13,7 +13,7 @@ export default function DashboardLayout({
       <Sidebar />
 
       {/* Main content area */}
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden lg:ml-[260px]">
         <Header />
         <main id="main-content" className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-950 p-4 pb-safe lg:p-6">
           <ErrorBoundary>

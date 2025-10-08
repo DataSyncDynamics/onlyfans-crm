@@ -1,14 +1,19 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { CREATORS } from "@/lib/mock-data";
 
 export type UserRole = "agency_owner" | "creator" | "chatter";
 
 interface RoleContextType {
   role: UserRole;
   setRole: (role: UserRole) => void;
+  selectedCreatorId: string | null;
+  setSelectedCreatorId: (id: string) => void;
+  isLoadingCreator: boolean;
   userId: string;
   userName: string;
+  userHandle?: string;
 }
 
 const RoleContext = createContext<RoleContextType | undefined>(undefined);
@@ -16,14 +21,21 @@ const RoleContext = createContext<RoleContextType | undefined>(undefined);
 export function RoleProvider({ children }: { children: React.ReactNode }) {
   // For testing: Start as agency_owner, allow switching
   const [role, setRoleState] = useState<UserRole>("agency_owner");
+  const [selectedCreatorId, setSelectedCreatorIdState] = useState<string | null>("creator_1"); // Default to Stella Rose
+  const [isLoadingCreator, setIsLoadingCreator] = useState(false);
+
+  // Get selected creator data
+  const selectedCreator = CREATORS.find(c => c.id === selectedCreatorId);
 
   // Mock user data
   const userId = "user-123";
   const userName = role === "agency_owner"
     ? "Athena Peros"
     : role === "creator"
-    ? "Bella Rose (@bella_rose)"
-    : "Emma Wilson (Chatter)";
+    ? selectedCreator?.displayName || "Unknown Creator"
+    : "Emma Wilson";
+
+  const userHandle = role === "creator" ? selectedCreator?.ofUsername : undefined;
 
   // Persist role in localStorage for testing
   useEffect(() => {
@@ -38,8 +50,30 @@ export function RoleProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("vaultcrm_test_role", newRole);
   };
 
+  // Wrapper for setSelectedCreatorId with loading state
+  const setSelectedCreatorId = (id: string) => {
+    setIsLoadingCreator(true);
+    setSelectedCreatorIdState(id);
+
+    // Reset loading state after transition
+    setTimeout(() => {
+      setIsLoadingCreator(false);
+    }, 400);
+  };
+
   return (
-    <RoleContext.Provider value={{ role, setRole, userId, userName }}>
+    <RoleContext.Provider
+      value={{
+        role,
+        setRole,
+        selectedCreatorId,
+        setSelectedCreatorId,
+        isLoadingCreator,
+        userId,
+        userName,
+        userHandle
+      }}
+    >
       {children}
     </RoleContext.Provider>
   );

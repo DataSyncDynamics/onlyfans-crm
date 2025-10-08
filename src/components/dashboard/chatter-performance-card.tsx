@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Chatter } from "@/types";
 import { MessageSquare, DollarSign, Clock, Award } from "lucide-react";
 
@@ -31,11 +32,18 @@ const getGradeColor = (grade: string): string => {
 };
 
 export function ChatterPerformanceCard({ chatter }: ChatterPerformanceCardProps) {
+  const router = useRouter();
   const grade = getPerformanceGrade(chatter.performanceScore);
   const gradeColor = getGradeColor(grade);
 
+  const handleClick = () => {
+    router.push(`/chatters/${chatter.id}`);
+  };
+
   return (
-    <div className="group relative overflow-hidden rounded-xl border border-slate-800/50 bg-gradient-to-br from-slate-900/50 to-slate-900/30 backdrop-blur-xl p-5 transition-all duration-300 hover:border-slate-700/50 hover:shadow-lg hover:shadow-purple-500/10">
+    <div
+      onClick={handleClick}
+      className="group relative overflow-hidden rounded-xl border border-slate-800/50 bg-gradient-to-br from-slate-900/50 to-slate-900/30 backdrop-blur-xl p-5 transition-all duration-300 hover:border-slate-700/50 hover:shadow-lg hover:shadow-purple-500/10 cursor-pointer hover:scale-[1.02]">
       {/* Header */}
       <div className="mb-4 flex items-start gap-3">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500">
