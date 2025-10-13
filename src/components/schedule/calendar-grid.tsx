@@ -47,7 +47,9 @@ export function CalendarGrid({
     const now = new Date();
     const day = now.getDay();
     const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Monday
-    return new Date(now.setDate(diff));
+    const monday = new Date(now.setDate(diff));
+    monday.setHours(0, 0, 0, 0); // Reset to midnight
+    return monday;
   });
 
   const [draggedShift, setDraggedShift] = useState<string | null>(null);
@@ -142,9 +144,13 @@ export function CalendarGrid({
     const endMinute = shift.endTime.getMinutes();
 
     // Calculate row position (6am = row 0)
-    const startRow = (startHour - 6) * 2 + (startMinute >= 30 ? 1 : 0);
-    const endRow = (endHour - 6) * 2 + (endMinute >= 30 ? 1 : 0);
-    const rowSpan = endRow - startRow;
+    // For hours 0-5 (midnight-5:59am), treat as next day (hours 24-29)
+    const normalizedStartHour = startHour < 6 ? startHour + 24 : startHour;
+    const normalizedEndHour = endHour < 6 ? endHour + 24 : endHour;
+
+    const startRow = (normalizedStartHour - 6) * 2 + (startMinute >= 30 ? 1 : 0);
+    const endRow = (normalizedEndHour - 6) * 2 + (endMinute >= 30 ? 1 : 0);
+    const rowSpan = Math.max(1, endRow - startRow); // Ensure at least 1 row span
 
     return {
       col: daysDiff + 2, // +2 for time label column
@@ -169,7 +175,9 @@ export function CalendarGrid({
     const now = new Date();
     const day = now.getDay();
     const diff = now.getDate() - day + (day === 0 ? -6 : 1);
-    setCurrentWeekStart(new Date(now.setDate(diff)));
+    const monday = new Date(now.setDate(diff));
+    monday.setHours(0, 0, 0, 0); // Reset to midnight
+    setCurrentWeekStart(monday);
   };
 
   return (
@@ -207,7 +215,7 @@ export function CalendarGrid({
 
       {/* Calendar Grid */}
       <div className="flex-1 overflow-auto p-4 md:p-6">
-        <div className="min-w-[800px]">
+        <div className="min-w-[800px] relative">
           {/* Grid Container */}
           <div className="grid grid-cols-8 gap-px rounded-lg border border-slate-800/50 bg-slate-800/50 overflow-hidden">
             {/* Header Row */}
@@ -258,40 +266,44 @@ export function CalendarGrid({
             ))}
           </div>
 
-          {/* Shifts Overlay */}
-          <div className="relative">
-            {filteredShifts.map((shift) => {
-              const position = getShiftPosition(shift);
-              const chatter = chatters.find((c) => c.id === shift.chatterId);
-              const shiftCreators = creators.filter((c) =>
-                shift.creatorIds.includes(c.id)
-              );
+          {/* Shifts Overlay - Now inside the relative container */}
+          {filteredShifts.map((shift) => {
+            const position = getShiftPosition(shift);
+            const chatter = chatters.find((c) => c.id === shift.chatterId);
+            const shiftCreators = creators.filter((c) =>
+              shift.creatorIds.includes(c.id)
+            );
 
-              return (
-                <div
-                  key={shift.id}
-                  style={{
-                    position: "absolute",
-                    top: `${(position.row - 2) * 40 + 80}px`, // Header offset
-                    left: `calc(${((position.col - 1) / 8) * 100}%)`,
-                    width: `calc(${100 / 8}% - 4px)`,
-                    height: `${position.rowSpan * 40 - 4}px`,
-                    zIndex: 10,
-                  }}
-                >
-                  <ShiftBlock
-                    shift={shift}
-                    chatter={chatter!}
-                    creators={shiftCreators}
-                    onClick={() => onShiftClick(shift.id)}
-                    isDragging={draggedShift === shift.id}
-                    onDragStart={() => setDraggedShift(shift.id)}
-                    onDragEnd={() => setDraggedShift(null)}
-                  />
-                </div>
-              );
-            })}
-          </div>
+            // Calculate pixel positions based on grid layout
+            const headerHeight = 61; // Height of header row with padding
+            const cellHeight = 40; // Height of each time slot cell
+            const timeColumnWidth = 12.5; // 1/8 of 100% for time column
+            const dayColumnWidth = 12.5; // 1/8 of 100% for each day
+
+            return (
+              <div
+                key={shift.id}
+                className="absolute pointer-events-auto"
+                style={{
+                  top: `${headerHeight + (position.row - 2) * cellHeight}px`,
+                  left: `calc(${timeColumnWidth + (position.col - 2) * dayColumnWidth}% + 2px)`,
+                  width: `calc(${dayColumnWidth}% - 4px)`,
+                  height: `${position.rowSpan * cellHeight - 4}px`,
+                  zIndex: 20,
+                }}
+              >
+                <ShiftBlock
+                  shift={shift}
+                  chatter={chatter!}
+                  creators={shiftCreators}
+                  onClick={() => onShiftClick(shift.id)}
+                  isDragging={draggedShift === shift.id}
+                  onDragStart={() => setDraggedShift(shift.id)}
+                  onDragEnd={() => setDraggedShift(null)}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
 

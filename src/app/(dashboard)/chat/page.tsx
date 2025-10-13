@@ -137,25 +137,40 @@ export default function ChatPage() {
           <div className="flex gap-2 overflow-x-auto pb-1">
             <Button
               size="sm"
-              variant={filterStatus === 'all' ? 'default' : 'outline'}
+              variant="outline"
               onClick={() => setFilterStatus('all')}
-              className="whitespace-nowrap"
+              className={cn(
+                "whitespace-nowrap min-h-[44px] transition-all",
+                filterStatus === 'all'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white border-transparent hover:from-purple-600 hover:to-pink-600'
+                  : 'bg-slate-900/50 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white'
+              )}
             >
               All
             </Button>
             <Button
               size="sm"
-              variant={filterStatus === 'waiting' ? 'default' : 'outline'}
+              variant="outline"
               onClick={() => setFilterStatus('waiting')}
-              className="whitespace-nowrap"
+              className={cn(
+                "whitespace-nowrap min-h-[44px] transition-all",
+                filterStatus === 'waiting'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white border-transparent hover:from-purple-600 hover:to-pink-600'
+                  : 'bg-slate-900/50 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white'
+              )}
             >
               Waiting
             </Button>
             <Button
               size="sm"
-              variant={filterStatus === 'active' ? 'default' : 'outline'}
+              variant="outline"
               onClick={() => setFilterStatus('active')}
-              className="whitespace-nowrap"
+              className={cn(
+                "whitespace-nowrap min-h-[44px] transition-all",
+                filterStatus === 'active'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white border-transparent hover:from-purple-600 hover:to-pink-600'
+                  : 'bg-slate-900/50 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white'
+              )}
             >
               Active
             </Button>
