@@ -16,11 +16,18 @@ import { getCreatorPersonality, applyPersonality, buildPersonalityPrompt } from 
 import { selectBestTemplate, fillTemplate, TemplateVariables } from './templates';
 import { calculateAutoSendEligibility } from './approval';
 import { checkContentSafety, isOnlyFansCompliant, logSafetyViolation } from './safety';
+import {
+  generateMockAIResponse,
+  applyPersonalityToMock,
+  generateMockMetadata,
+  generateMockConfidence,
+} from './mock-responses';
 
 // Configuration from environment
 const AI_TEMPERATURE = parseFloat(process.env.AI_TEMPERATURE || '0.7');
 const AI_MAX_TOKENS = parseInt(process.env.AI_MAX_TOKENS || '500');
 const CONTENT_FILTER_ENABLED = process.env.AI_CONTENT_FILTER_ENABLED === 'true';
+const USE_MOCK_AI = process.env.USE_MOCK_AI === 'true' || process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
 
 /**
  * Main message generation function
@@ -52,7 +59,14 @@ export async function generateAIResponse(
     if (useTemplate && templateCategory) {
       response = await generateFromTemplate(request, personality);
     } else {
-      response = await generateFromClaude(request, personality);
+      try {
+        response = await generateFromClaude(request, personality);
+      } catch (error) {
+        console.warn('⚠️  Anthropic API unavailable, falling back to template mode');
+        console.error('API Error:', error);
+        // Graceful fallback to template on API failure
+        response = await generateFromTemplate(request, personality);
+      }
     }
 
     // Safety check
@@ -196,8 +210,46 @@ async function generateFromClaude(
   request: AIGenerationRequest,
   personality: CreatorPersonality
 ): Promise<AIGenerationResponse> {
-  const { context, incomingMessage, ppvPrice, ppvDescription } = request;
+  const { context, incomingMessage, ppvPrice, ppvDescription, templateCategory } = request;
 
+  // DEMO MODE: Use mock responses instead of calling Anthropic API
+  if (USE_MOCK_AI) {
+    console.log('🎭 Demo Mode: Using mock AI response');
+
+    const category = templateCategory || 'response';
+    let messageText = generateMockAIResponse(
+      category,
+      ppvPrice,
+      context.fan.username.replace('@', '')
+    );
+
+    // Apply personality styling
+    messageText = applyPersonalityToMock(messageText, personality.tone);
+
+    // Simulate realistic confidence scores
+    const confidence = generateMockConfidence(!!ppvPrice, category);
+
+    // Determine if requires approval (same logic as real API)
+    const requiresApproval = !calculateAutoSendEligibility({
+      ppvPrice,
+      fanTier: context.fan.tier,
+      isFirstMessage: context.conversationHistory.length === 0,
+      confidence,
+      fanTotalSpent: context.totalSpent,
+    });
+
+    return {
+      messageText,
+      requiresApproval,
+      confidence,
+      reasoning: `Mock AI-generated with ${personality.tone} personality (Demo Mode)`,
+      suggestedPpvPrice: ppvPrice,
+      detectedIntent: category as any,
+      metadata: generateMockMetadata(),
+    };
+  }
+
+  // REAL API MODE: Call Anthropic Claude
   const client = getAnthropicClient();
 
   // Build system prompt with personality

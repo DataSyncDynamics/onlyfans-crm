@@ -103,7 +103,7 @@ async function buildMessageContext(
   // TODO: Fetch from database
   // For now, return mock data that matches existing mock-data.ts structure
 
-  const { getFanById, getCreatorById, getMessagesForFan } = await import('@/lib/mock-data');
+  const { getFanById, getCreatorById, getMessagesByFan } = await import('@/lib/mock-data');
 
   const fan = getFanById(fanId);
   const creator = getCreatorById(creatorId);
@@ -113,7 +113,7 @@ async function buildMessageContext(
   }
 
   // Get conversation history (last 10 messages)
-  const messages = getMessagesForFan(fanId).slice(-10);
+  const messages = getMessagesByFan(fanId).slice(-10);
 
   // Convert to AIMessage format
   const conversationHistory = messages.map((msg) => ({
