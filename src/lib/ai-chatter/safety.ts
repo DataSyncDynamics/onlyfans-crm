@@ -174,7 +174,9 @@ export function checkContentSafety(text: string): SafetyCheckResult {
   // Check all blocked keyword categories
   Object.entries(BLOCKED_KEYWORDS).forEach(([category, keywords]) => {
     keywords.forEach((keyword) => {
-      if (lowerText.includes(keyword.toLowerCase())) {
+      // Use word boundary regex to avoid false positives (e.g., "meth" in "something")
+      const pattern = new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+      if (pattern.test(lowerText)) {
         blocked = true;
         blockedReasons.push(`Prohibited content: ${category} (keyword: "${keyword}")`);
       }
@@ -184,7 +186,9 @@ export function checkContentSafety(text: string): SafetyCheckResult {
   // Check warning keywords
   Object.entries(WARNING_KEYWORDS).forEach(([category, keywords]) => {
     keywords.forEach((keyword) => {
-      if (lowerText.includes(keyword.toLowerCase())) {
+      // Use word boundary regex for warnings too
+      const pattern = new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+      if (pattern.test(lowerText)) {
         warnings.push(`Warning: ${category} content detected (keyword: "${keyword}")`);
       }
     });
