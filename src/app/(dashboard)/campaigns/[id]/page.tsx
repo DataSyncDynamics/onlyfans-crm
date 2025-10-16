@@ -136,7 +136,7 @@ export default function CampaignAnalyticsPage({ params }: { params: { id: string
   const conversionRate = ((TOP_PURCHASERS.length / CAMPAIGN.sentCount) * 100).toFixed(1);
 
   const winningVariant =
-    CAMPAIGN.variants[0].revenue > CAMPAIGN.variants[1].revenue
+    CAMPAIGN.variants[0]?.revenue && CAMPAIGN.variants[1]?.revenue && CAMPAIGN.variants[0].revenue > CAMPAIGN.variants[1].revenue
       ? CAMPAIGN.variants[0]
       : CAMPAIGN.variants[1];
 
@@ -189,7 +189,7 @@ export default function CampaignAnalyticsPage({ params }: { params: { id: string
               <Copy className="h-4 w-4 mr-2" />
               Duplicate
             </Button>
-            {CAMPAIGN.status === "sending" && (
+            {CAMPAIGN.status !== "completed" && CAMPAIGN.status !== "draft" && (
               <Button variant="outline" className="bg-slate-800/50 border-slate-700">
                 <Pause className="h-4 w-4 mr-2" />
                 Pause
@@ -293,7 +293,7 @@ export default function CampaignAnalyticsPage({ params }: { params: { id: string
 
           <div className="grid grid-cols-2 gap-4">
             {CAMPAIGN.variants.map((variant) => {
-              const isWinner = variant.id === winningVariant.id;
+              const isWinner = winningVariant && variant.id === winningVariant.id;
               const variantOpenRate = (
                 (variant.opened / variant.sent) *
                 100

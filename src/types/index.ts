@@ -449,3 +449,291 @@ export interface SyncPreview {
   newContent: number;
   estimatedDuration: number; // seconds
 }
+
+// ============================================================================
+// AI CHATTER SYSTEM (Complete Implementation)
+// ============================================================================
+
+/**
+ * AI-powered conversation tracking
+ * Manages full conversation context between fans and creators
+ */
+export interface AIConversation {
+  id: string;
+  fanId: string;
+  creatorId: string;
+  lastMessageAt: Date;
+  messageCount: number;
+  totalRevenue: number;
+  sentiment: 'positive' | 'neutral' | 'negative' | 'frustrated';
+  isActive: boolean;
+  metadata?: Record<string, any>;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Individual AI-generated or human message
+ * Tracks approval status, performance, and revenue attribution
+ */
+export interface AIMessage {
+  id: string;
+  conversationId: string;
+  fanId: string;
+  creatorId: string;
+  messageText: string;
+  messageType: 'incoming' | 'outgoing';
+  isAiGenerated: boolean;
+  templateId?: string;
+  status: 'draft' | 'pending_approval' | 'approved' | 'sent' | 'failed' | 'rejected';
+  approvalRequired: boolean;
+  approvedBy?: string;
+  sentAt?: Date;
+  readAt?: Date;
+  respondedAt?: Date;
+  ppvPrice?: number;
+  ppvPurchased?: boolean;
+  confidenceScore?: number; // 0-1
+  metadata?: Record<string, any>;
+  createdAt: Date;
+}
+
+/**
+ * Reusable message template with performance tracking
+ * Optimized per fan tier and content type
+ */
+export interface AITemplate {
+  id: string;
+  name: string;
+  category: 'greeting' | 'ppv_offer' | 'reengagement' | 'response' | 'custom' | 'sexting' | 'upsell';
+  templateText: string;
+  variables: string[]; // e.g., ['fanName', 'ppvPrice', 'ppvDescription']
+  targetTiers: Array<'whale' | 'high' | 'medium' | 'low'>;
+  minPrice?: number;
+  maxPrice?: number;
+  isActive: boolean;
+  isNsfw: boolean;
+  createdBy?: string;
+  timesUsed: number;
+  successRate: number; // 0-100 percentage
+  avgResponseTimeMinutes?: number;
+  avgRevenue: number;
+  metadata?: Record<string, any>;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Creator-specific AI personality configuration
+ * Defines tone, style, and voice for AI-generated messages
+ */
+export interface CreatorPersonality {
+  id: string;
+  creatorId: string;
+  tone: 'flirty' | 'casual' | 'dominant' | 'submissive' | 'girlfriend' | 'professional';
+  emojiFrequency: 'high' | 'medium' | 'low' | 'none';
+  commonPhrases: string[];
+  writingStyle: {
+    capitalization?: 'normal' | 'lowercase' | 'uppercase';
+    punctuation?: 'normal' | 'minimal' | 'excessive';
+    sentenceLength?: 'short' | 'medium' | 'long';
+  };
+  nsfwLevel: 'suggestive' | 'explicit' | 'extreme';
+  trainingDataAnalyzed: boolean;
+  lastTrainedAt?: Date;
+  sampleMessages: string[];
+  customInstructions?: string; // Additional instructions for AI
+  metadata?: Record<string, any>;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Template performance analytics per fan tier
+ * Tracks conversion rates, revenue, and engagement
+ */
+export interface TemplatePerformance {
+  id: string;
+  templateId: string;
+  fanTier: 'whale' | 'high' | 'medium' | 'low';
+  timesSent: number;
+  timesOpened: number;
+  timesResponded: number;
+  timesPurchased: number;
+  totalRevenue: number;
+  avgResponseTimeMinutes?: number;
+  lastUsedAt?: Date;
+  createdAt: Date;
+}
+
+/**
+ * Approval queue for high-value or uncertain messages
+ * Requires human review before sending
+ */
+export interface ApprovalQueueItem {
+  id: string;
+  messageId: string;
+  fanId: string;
+  creatorId: string;
+  assignedChatterId?: string;
+  priority: 'low' | 'normal' | 'high' | 'urgent';
+  reason?: string;
+  ppvPrice?: number;
+  estimatedRevenue?: number;
+  status: 'pending' | 'approved' | 'rejected' | 'expired' | 'timeout';
+  reviewedAt?: Date;
+  reviewedBy?: string;
+  reviewNotes?: string;
+  expiresAt?: Date;
+  createdAt: Date;
+  // Populated fields (joined data)
+  message?: AIMessage;
+  fan?: Fan;
+  creator?: Creator;
+}
+
+/**
+ * A/B test for template optimization
+ * Compares two templates to determine winner
+ */
+export interface ABTest {
+  id: string;
+  testName: string;
+  templateAId: string;
+  templateBId: string;
+  targetTier?: 'whale' | 'high' | 'medium' | 'low';
+  startDate: Date;
+  endDate?: Date;
+  status: 'active' | 'completed' | 'cancelled';
+  winnerTemplateId?: string;
+  confidenceLevel?: number; // 0-1 statistical confidence
+  metadata?: Record<string, any>;
+  createdAt: Date;
+}
+
+/**
+ * Analytics event for AI learning
+ * Tracks all interactions for optimization
+ */
+export interface AIAnalyticsEvent {
+  id: string;
+  eventType: 'message_sent' | 'message_opened' | 'message_responded' | 'ppv_purchased' |
+             'conversation_started' | 'conversation_ended' | 'approval_requested' |
+             'approval_granted' | 'approval_rejected';
+  messageId?: string;
+  conversationId?: string;
+  templateId?: string;
+  fanId: string;
+  creatorId: string;
+  fanTier?: 'whale' | 'high' | 'medium' | 'low';
+  revenue?: number;
+  responseTimeSeconds?: number;
+  metadata?: Record<string, any>;
+  createdAt: Date;
+}
+
+/**
+ * Context passed to AI for message generation
+ * Contains fan history, spending, and conversation state
+ */
+export interface MessageContext {
+  fan: Fan;
+  creator: Creator;
+  conversationHistory: AIMessage[];
+  lastPurchaseDate?: Date;
+  totalSpent: number;
+  tier: 'whale' | 'high' | 'medium' | 'low';
+  lastActiveDate?: Date;
+  recentPurchases?: string[];
+  engagementScore?: number; // 0-100
+}
+
+/**
+ * Request to AI for message generation
+ * Includes context and optional PPV details
+ */
+export interface AIGenerationRequest {
+  fanId: string;
+  creatorId: string;
+  incomingMessage?: string;
+  context: MessageContext;
+  templateCategory?: AITemplate['category'];
+  ppvPrice?: number;
+  ppvDescription?: string;
+  forceTemplate?: boolean; // Force template usage vs Claude generation
+}
+
+/**
+ * AI-generated message response
+ * Includes message text, approval requirements, and metadata
+ */
+export interface AIGenerationResponse {
+  messageText: string;
+  templateId?: string;
+  requiresApproval: boolean;
+  confidence: number; // 0-1
+  reasoning?: string;
+  suggestedPpvPrice?: number;
+  detectedIntent?: 'casual_chat' | 'ppv_interest' | 'complaint' | 'compliment' | 'question';
+  metadata?: Record<string, any>;
+}
+
+/**
+ * Real-time notification for approval queue
+ * Triggers push notifications and email alerts
+ */
+export interface AINotification {
+  id: string;
+  type: 'approval_needed' | 'approval_timeout' | 'high_value_opportunity' | 'ai_error';
+  title: string;
+  message: string;
+  priority: 'low' | 'normal' | 'high' | 'urgent';
+  actionUrl?: string;
+  approvalQueueItemId?: string;
+  chatterId?: string; // Who should be notified
+  creatorId?: string;
+  read: boolean;
+  dismissedAt?: Date;
+  createdAt: Date;
+}
+
+/**
+ * AI System configuration and settings
+ * Manages thresholds, safety settings, and feature flags
+ */
+export interface AISystemConfig {
+  autoSendThreshold: number; // PPV price threshold for auto-send
+  minConfidence: number; // Minimum confidence score (0-1)
+  temperature: number; // Claude creativity level (0-1)
+  maxTokens: number; // Max response length
+  contentFilterEnabled: boolean;
+  requireApprovalForNewFans: boolean;
+  requireApprovalForAll: boolean;
+  enableAIChat: boolean;
+  model: string; // Claude model version
+}
+
+/**
+ * AI Performance metrics and analytics
+ * Dashboard overview of AI system performance
+ */
+export interface AIPerformanceMetrics {
+  totalMessagesGenerated: number;
+  totalMessagesSent: number;
+  totalMessagesApproved: number;
+  totalMessagesRejected: number;
+  autoSendRate: number; // Percentage
+  approvalRate: number; // Percentage
+  avgConfidenceScore: number;
+  avgResponseTimeMinutes: number;
+  totalRevenue: number;
+  conversionRate: number; // Percentage
+  avgRevenuePerMessage: number;
+  topPerformingTemplates: AITemplate[];
+  performanceByTier: {
+    tier: 'whale' | 'high' | 'medium' | 'low';
+    messagesSent: number;
+    revenue: number;
+    conversionRate: number;
+  }[];
+}
