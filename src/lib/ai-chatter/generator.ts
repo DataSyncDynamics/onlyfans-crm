@@ -22,6 +22,9 @@ import {
   generateMockMetadata,
   generateMockConfidence,
 } from './mock-responses';
+import { logger } from '@/lib/utils/logger';
+
+const log = logger.withContext('AI:Generator');
 
 // Configuration from environment
 const AI_TEMPERATURE = parseFloat(process.env.AI_TEMPERATURE || '0.7');
@@ -62,8 +65,7 @@ export async function generateAIResponse(
       try {
         response = await generateFromClaude(request, personality);
       } catch (error) {
-        console.warn('⚠️  Anthropic API unavailable, falling back to template mode');
-        console.error('API Error:', error);
+        log.warn('Anthropic API unavailable, falling back to template mode', { error: error instanceof Error ? error.message : 'Unknown error' });
         // Graceful fallback to template on API failure
         response = await generateFromTemplate(request, personality);
       }
@@ -100,7 +102,7 @@ export async function generateAIResponse(
 
     return response;
   } catch (error) {
-    console.error('❌ Message generation failed:', error);
+    log.error('Message generation failed', error);
 
     return {
       messageText: '[ERROR: Failed to generate message]',
@@ -214,7 +216,7 @@ async function generateFromClaude(
 
   // DEMO MODE: Use mock responses instead of calling Anthropic API
   if (USE_MOCK_AI) {
-    console.log('🎭 Demo Mode: Using mock AI response');
+    log.debug('Demo Mode: Using mock AI response');
 
     const category = templateCategory || 'response';
     let messageText = generateMockAIResponse(
@@ -308,7 +310,7 @@ async function generateFromClaude(
       },
     };
   } catch (error) {
-    console.error('❌ Claude API error:', error);
+    log.error('Claude API error', error);
     throw error;
   }
 }

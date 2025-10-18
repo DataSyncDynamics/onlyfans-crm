@@ -110,13 +110,13 @@ ARRAY['fanName'], ARRAY['high'], false,
 -- Medium/Low Tier Re-engagement
 ('Reengagement - Standard Comeback', 'reengagement',
 'hey stranger! 😊 noticed you haven''t been around... I''ve posted some great new stuff. come check it out! 💕',
-ARRAY[], ARRAY['medium', 'low'], false,
+ARRAY[]::text[], ARRAY['medium', 'low'], false,
 '{"tone": "casual", "effort": "low", "days_inactive": 14}'),
 
 -- Expired Subscriber Re-engagement
 ('Reengagement - Expired Sub Offer', 'reengagement',
 'hey babe! your subscription expired but I''d love to have you back 😘 I''m running a special deal right now... interested? 🔥',
-ARRAY[], ARRAY['whale', 'high', 'medium'], false,
+ARRAY[]::text[], ARRAY['whale', 'high', 'medium'], false,
 '{"tone": "promotional", "target": "expired_sub"}');
 
 -- =============================================================================
@@ -128,29 +128,29 @@ INSERT INTO ai_templates (name, category, template_text, variables, target_tiers
 -- Compliment Responses
 ('Response - Thank You Flirty', 'response',
 'aww baby you''re making me blush 🥰 that''s so sweet of you to say 💕',
-ARRAY[], ARRAY['whale', 'high', 'medium', 'low'], false,
+ARRAY[]::text[], ARRAY['whale', 'high', 'medium', 'low'], false,
 '{"trigger": "compliment", "tone": "appreciative"}'),
 
 ('Response - Compliment Flirty', 'response',
 'omg you''re too sweet 😘 comments like that make my day... and turn me on a little 😈',
-ARRAY[], ARRAY['whale', 'high'], true,
+ARRAY[]::text[], ARRAY['whale', 'high'], true,
 '{"trigger": "compliment", "tone": "flirty", "escalation": "mild"}'),
 
 -- Question Responses
 ('Response - What Do You Like', 'response',
 'i love making all kinds of content 😊 solo, b/g, customs... what are you most interested in? i want to make sure you get exactly what you''re looking for 🔥',
-ARRAY[], ARRAY['whale', 'high', 'medium'], true,
+ARRAY[]::text[], ARRAY['whale', 'high', 'medium'], true,
 '{"trigger": "content_question", "engagement": "high"}'),
 
 -- General Chat
 ('Response - Good Morning', 'response',
 'good morning babe! 🌅 hope you slept well... i''ve been thinking about you 😘',
-ARRAY[], ARRAY['whale', 'high'], false,
+ARRAY[]::text[], ARRAY['whale', 'high'], false,
 '{"trigger": "greeting", "tone": "intimate"}'),
 
 ('Response - How Are You', 'response',
 'doing great now that i''m chatting with you 😊 how''s your day going? 💕',
-ARRAY[], ARRAY['whale', 'high', 'medium'], false,
+ARRAY[]::text[], ARRAY['whale', 'high', 'medium'], false,
 '{"trigger": "how_are_you", "engagement": true}');
 
 -- =============================================================================
@@ -161,17 +161,17 @@ INSERT INTO ai_templates (name, category, template_text, variables, target_tiers
 
 ('Sexting - Initiation Soft', 'sexting',
 'baby i can''t stop thinking about you 🥵 are you alone right now? 😈',
-ARRAY[], ARRAY['whale', 'high'], true,
+ARRAY[]::text[], ARRAY['whale', 'high'], true,
 '{"intensity": "soft", "consent_check": true}'),
 
 ('Sexting - Tease Medium', 'sexting',
 'just got out of the shower and i''m still all wet 💦 wish you were here with me... 😘',
-ARRAY[], ARRAY['whale', 'high'], true,
+ARRAY[]::text[], ARRAY['whale', 'high'], true,
 '{"intensity": "medium", "descriptive": true}'),
 
 ('Sexting - Escalation', 'sexting',
 'mmm i love when you talk to me like that 🥵 you''re getting me so turned on right now... what else would you do to me? 😈',
-ARRAY[], ARRAY['whale', 'high'], true,
+ARRAY[]::text[], ARRAY['whale', 'high'], true,
 '{"intensity": "high", "engagement": "question"}');
 
 -- =============================================================================
@@ -213,7 +213,7 @@ ARRAY['fanName'], ARRAY['whale', 'high'], false,
 
 ('Custom - Apology Late Response', 'custom',
 'hey babe! so sorry for the late reply, i''ve been crazy busy 😅 but you''re always worth the wait right? 😘 what were you saying? 💕',
-ARRAY[], ARRAY['whale', 'high', 'medium'], false,
+ARRAY[]::text[], ARRAY['whale', 'high', 'medium'], false,
 '{"trigger": "delayed_response", "tone": "apologetic"}');
 
 -- =============================================================================

@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { TemplateSkeleton } from '@/components/ui/skeletons';
 import {
   MessageSquare,
   Plus,
@@ -280,10 +281,7 @@ export default function TemplatesPage() {
         <TabsContent value={selectedCategory} className="mt-6">
           {/* Template Grid */}
           {loading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400 mx-auto"></div>
-              <p className="text-slate-400 mt-4">Loading templates...</p>
-            </div>
+            <TemplateSkeleton />
           ) : filteredTemplates.length === 0 ? (
             <Card className="p-12 bg-slate-900/50 border-slate-800 text-center">
               <MessageSquare className="w-16 h-16 text-slate-600 mx-auto mb-4" />

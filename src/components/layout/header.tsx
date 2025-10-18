@@ -163,7 +163,7 @@ export function Header() {
           {/* Mobile Command Trigger */}
           <button
             onClick={() => setIsCommandOpen(true)}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-800 bg-slate-900/50 text-slate-400 transition-all hover:border-slate-700 hover:bg-slate-800/50 hover:text-slate-200 lg:hidden"
+            className="flex h-11 w-11 items-center justify-center rounded-lg border border-slate-800 bg-slate-900/50 text-slate-400 transition-all hover:border-slate-700 hover:bg-slate-800/50 hover:text-slate-200 active:scale-95 lg:hidden"
           >
             <Command className="h-4 w-4" />
           </button>
@@ -172,7 +172,7 @@ export function Header() {
           <button
             onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
             className={cn(
-              "relative flex h-9 w-9 items-center justify-center rounded-lg border transition-all",
+              "relative flex h-11 w-11 items-center justify-center rounded-lg border transition-all active:scale-95",
               isNotificationsOpen
                 ? "border-slate-700 bg-slate-800 text-white"
                 : "border-slate-800 bg-slate-900/50 text-slate-400 hover:border-slate-700 hover:bg-slate-800/50 hover:text-slate-200"
@@ -196,7 +196,7 @@ export function Header() {
           <button
             onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
             className={cn(
-              "hidden h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 transition-all lg:flex",
+              "hidden h-11 w-11 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 transition-all active:scale-95 lg:flex",
               isUserMenuOpen ? "opacity-100 ring-2 ring-purple-500/50" : "hover:opacity-90"
             )}
           >

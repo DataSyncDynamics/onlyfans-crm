@@ -26,6 +26,7 @@ import { UserMenu } from "@/components/ui/user-menu";
 import { KeyboardShortcutsModal } from "@/components/ui/keyboard-shortcuts-modal";
 import { useRole } from "@/contexts/role-context";
 import { CREATORS } from "@/lib/mock-data";
+import { haptics } from "@/lib/utils/haptics";
 
 const allNavigation = [
   { name: "Overview", href: "/", icon: LayoutDashboard, roles: ["agency_owner", "creator", "chatter"] },
@@ -92,7 +93,10 @@ export function Sidebar() {
             <Link
               key={item.name}
               href={item.href}
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={() => {
+                haptics.tap();
+                setIsMobileMenuOpen(false);
+              }}
               className={cn(
                 "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 relative",
                 isActive
@@ -297,6 +301,7 @@ export function Sidebar() {
               <Link
                 key={item.name}
                 href={item.href}
+                onClick={() => haptics.tap()}
                 className={cn(
                   "flex flex-col items-center gap-1 px-3 py-2 rounded-lg min-h-[56px] min-w-[64px] justify-center transition-all active:scale-95 relative",
                   isActive

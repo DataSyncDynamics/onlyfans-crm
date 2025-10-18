@@ -8,6 +8,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateAIResponse } from '@/lib/ai-chatter/generator';
 import { AIGenerationRequest, MessageContext } from '@/types';
+import { checkRateLimit } from '@/lib/utils/rate-limit';
+import { createApiLogger } from '@/lib/utils/logger';
+
+const log = createApiLogger('ai/generate');
 
 export const runtime = 'nodejs'; // Use Node.js runtime for Anthropic SDK
 
@@ -17,6 +21,40 @@ export const runtime = 'nodejs'; // Use Node.js runtime for Anthropic SDK
  */
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting - prevent API abuse
+    // Use IP address or default to 'anonymous' for local development
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim()
+      || request.headers.get('x-real-ip')
+      || 'anonymous';
+
+    const { success, remaining, resetAt } = checkRateLimit(ip, 10, 60000);
+
+    // Set rate limit headers
+    const headers = {
+      'X-RateLimit-Limit': '10',
+      'X-RateLimit-Remaining': remaining.toString(),
+      'X-RateLimit-Reset': new Date(resetAt).toISOString(),
+    };
+
+    if (!success) {
+      const retryAfter = Math.ceil((resetAt - Date.now()) / 1000);
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Rate limit exceeded',
+          message: 'Too many requests. Please try again in 1 minute.',
+          retryAfter,
+        },
+        {
+          status: 429,
+          headers: {
+            ...headers,
+            'Retry-After': retryAfter.toString(),
+          },
+        }
+      );
+    }
+
     const body = await request.json();
 
     const {
@@ -58,7 +96,7 @@ export async function POST(request: NextRequest) {
     const duration = Date.now() - startTime;
 
     // Log generation (for analytics)
-    console.log('✅ AI Message Generated:', {
+    log.info('AI message generated successfully', {
       fanId,
       creatorId,
       category: templateCategory,
@@ -68,18 +106,21 @@ export async function POST(request: NextRequest) {
       templateUsed: !!response.templateId,
     });
 
-    // Return response
-    return NextResponse.json({
-      success: true,
-      data: response,
-      meta: {
-        duration,
-        timestamp: new Date().toISOString(),
+    // Return response with rate limit headers
+    return NextResponse.json(
+      {
+        success: true,
+        data: response,
+        meta: {
+          duration,
+          timestamp: new Date().toISOString(),
+        },
       },
-    });
+      { headers }
+    );
 
   } catch (error) {
-    console.error('❌ AI Generation API Error:', error);
+    log.error('AI generation failed', error);
 
     return NextResponse.json(
       {

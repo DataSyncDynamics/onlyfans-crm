@@ -26,6 +26,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { haptics } from "@/lib/utils/haptics";
 
 interface AISuggestionPanelProps {
   conversationId: string;
@@ -135,11 +136,13 @@ export function AISuggestionPanel({ conversationId, onUseSuggestion }: AISuggest
   };
 
   const handleUseSuggestion = (message: string) => {
+    haptics.success();
     onUseSuggestion?.(message);
     setSelectedSuggestion(null);
   };
 
   const handleCopySuggestion = async (message: string) => {
+    haptics.tap();
     await navigator.clipboard.writeText(message);
     // Show toast notification
   };
@@ -389,8 +392,11 @@ export function AISuggestionPanel({ conversationId, onUseSuggestion }: AISuggest
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => generateAIResponse('greeting')}
-                  className="border-slate-700 bg-slate-800/50 text-slate-300 hover:bg-slate-800 hover:text-white"
+                  onClick={() => {
+                    haptics.button();
+                    generateAIResponse('greeting');
+                  }}
+                  className="border-slate-700 bg-slate-800/50 text-slate-300 hover:bg-slate-800 hover:text-white min-h-[44px]"
                 >
                   <Heart className="mr-2 h-3 w-3" />
                   Greeting
@@ -398,8 +404,11 @@ export function AISuggestionPanel({ conversationId, onUseSuggestion }: AISuggest
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => generateAIResponse('ppv_offer', 25)}
-                  className="border-slate-700 bg-slate-800/50 text-slate-300 hover:bg-slate-800 hover:text-white"
+                  onClick={() => {
+                    haptics.button();
+                    generateAIResponse('ppv_offer', 25);
+                  }}
+                  className="border-slate-700 bg-slate-800/50 text-slate-300 hover:bg-slate-800 hover:text-white min-h-[44px]"
                 >
                   <DollarSign className="mr-2 h-3 w-3" />
                   PPV $25
@@ -407,8 +416,11 @@ export function AISuggestionPanel({ conversationId, onUseSuggestion }: AISuggest
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => generateAIResponse('response')}
-                  className="border-slate-700 bg-slate-800/50 text-slate-300 hover:bg-slate-800 hover:text-white"
+                  onClick={() => {
+                    haptics.button();
+                    generateAIResponse('response');
+                  }}
+                  className="border-slate-700 bg-slate-800/50 text-slate-300 hover:bg-slate-800 hover:text-white min-h-[44px]"
                 >
                   <MessageSquare className="mr-2 h-3 w-3" />
                   Reply
@@ -416,8 +428,11 @@ export function AISuggestionPanel({ conversationId, onUseSuggestion }: AISuggest
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => generateAIResponse('upsell', 50)}
-                  className="border-slate-700 bg-slate-800/50 text-slate-300 hover:bg-slate-800 hover:text-white"
+                  onClick={() => {
+                    haptics.button();
+                    generateAIResponse('upsell', 50);
+                  }}
+                  className="border-slate-700 bg-slate-800/50 text-slate-300 hover:bg-slate-800 hover:text-white min-h-[44px]"
                 >
                   <TrendingUp className="mr-2 h-3 w-3" />
                   Upsell

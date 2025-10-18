@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AISuggestionPanel } from "@/components/chat/ai-suggestion-panel";
 import { KeywordDetector } from "@/components/chat/keyword-detector";
+import { ChatListSkeleton, MessageSkeleton } from "@/components/ui/skeletons";
 import { Conversation, Fan } from "@/types";
 import {
   getConversationsByChatter,
@@ -23,6 +24,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, formatDistanceToNow } from "date-fns";
+import { haptics } from "@/lib/utils/haptics";
 
 export default function ChatPage() {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
@@ -31,7 +33,14 @@ export default function ChatPage() {
   const [filterPriority] = useState<Conversation['priority'] | 'all'>('all');
   const [messageInput, setMessageInput] = useState("");
   const [showAIPanel, setShowAIPanel] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Simulate loading state
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Get conversations for the current chatter (using chatter_1 for demo)
   const allConversations = getConversationsByChatter("chatter_1");
@@ -68,12 +77,17 @@ export default function ChatPage() {
   const handleSendMessage = () => {
     if (!messageInput.trim() || !selectedConversation) return;
 
+    // Haptic feedback on send
+    haptics.button();
+
     // In a real app, this would send the message via API
     console.log("Sending message:", messageInput);
     setMessageInput("");
   };
 
   const handleUseSuggestion = (message: string) => {
+    // Haptic feedback when using AI suggestion
+    haptics.success();
     setMessageInput(message);
   };
 
@@ -179,7 +193,9 @@ export default function ChatPage() {
 
         {/* Conversation List */}
         <div className="flex-1 overflow-y-auto">
-          {filteredConversations.length === 0 ? (
+          {isLoading ? (
+            <ChatListSkeleton />
+          ) : filteredConversations.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-8 text-center">
               <MessageSquare className="mb-3 h-12 w-12 text-slate-600" />
               <p className="text-sm text-slate-500">No conversations found</p>
@@ -270,7 +286,7 @@ export default function ChatPage() {
               {/* Mobile Back Button */}
               <button
                 onClick={() => setSelectedConversation(null)}
-                className="lg:hidden -ml-2 flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-800/50 hover:text-white"
+                className="lg:hidden -ml-2 flex h-11 w-11 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-800/50 hover:text-white active:scale-95 transition-transform"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
@@ -298,7 +314,7 @@ export default function ChatPage() {
                   {/* Toggle AI Panel Button (Mobile) */}
                   <button
                     onClick={() => setShowAIPanel(!showAIPanel)}
-                    className="lg:hidden flex h-9 w-9 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400 hover:bg-purple-500/20"
+                    className="lg:hidden flex h-11 w-11 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 active:scale-95 transition-transform"
                   >
                     <Sparkles className="h-5 w-5" />
                   </button>

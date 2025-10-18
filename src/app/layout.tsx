@@ -7,6 +7,9 @@ import { RoleProvider } from "@/contexts/role-context";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  weight: ["400", "500", "600", "700"],
+  preload: true,
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -21,6 +24,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
       <body className={`${inter.variable} antialiased`}>
         {/* Skip to main content link for screen readers */}
         <a

@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AnalyticsSkeleton } from '@/components/ui/skeletons';
 import {
   BarChart3,
   TrendingUp,
@@ -100,11 +101,19 @@ export default function AnalyticsPage() {
 
   if (loading || !analytics) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400 mx-auto"></div>
-          <p className="text-slate-400 mt-4">Loading analytics...</p>
+      <div className="p-8 space-y-6">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-3">
+              <BarChart3 className="w-8 h-8 text-purple-400" />
+              AI Analytics
+            </h1>
+            <p className="text-slate-400 mt-1">
+              Performance insights and optimization recommendations
+            </p>
+          </div>
         </div>
+        <AnalyticsSkeleton />
       </div>
     );
   }

@@ -4,6 +4,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { createApiLogger } from '@/lib/utils/logger';
+
+const log = createApiLogger('ai/analytics');
 
 interface AnalyticsQuery {
   range?: '7d' | '30d' | '90d';
@@ -44,7 +47,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Analytics GET Error:', error);
+    log.error('Failed to fetch analytics', error);
 
     return NextResponse.json(
       {
@@ -74,7 +77,7 @@ export async function POST(request: NextRequest) {
       metadata,
     } = body;
 
-    // Validate required fields
+    // Validate required fields (only eventType and messageId are mandatory)
     if (!eventType || !messageId) {
       return NextResponse.json(
         { error: 'eventType and messageId are required' },
@@ -82,40 +85,50 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create analytics event
+    // Create analytics event with optional fields
+    // Allow 'unknown' or missing creatorId/fanId for system-generated events
     const event = {
-      id: `event_${Date.now()}`,
+      id: `event_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
       eventType,
       messageId,
-      templateId,
-      creatorId,
-      fanId,
-      metadata,
-      timestamp: new Date(),
+      templateId: templateId || null,
+      creatorId: creatorId || 'unknown',
+      fanId: fanId || 'unknown',
+      metadata: metadata || {},
+      timestamp: new Date().toISOString(),
     };
 
     // TODO: Save to database
     // INSERT INTO ai_analytics_events ...
 
-    console.log('✅ Analytics event logged:', {
-      eventType,
-      messageId,
-      templateId,
+    // Log event with structured logger
+    log.info('Analytics event logged', {
+      id: event.id,
+      eventType: event.eventType,
+      messageId: event.messageId,
+      creatorId: event.creatorId,
+      fanId: event.fanId,
+      timestamp: event.timestamp,
     });
 
     return NextResponse.json({
       success: true,
       data: event,
+      meta: {
+        message: 'Event logged successfully',
+      },
     });
 
   } catch (error) {
-    console.error('❌ Analytics POST Error:', error);
+    log.error('Failed to log analytics event', error);
 
+    // Graceful error handling - log error but don't fail completely
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to log analytics event',
         message: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString(),
       },
       { status: 500 }
     );

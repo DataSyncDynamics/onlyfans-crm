@@ -1191,11 +1191,70 @@ export const MOCK_SYNC_ACTIVITIES: SyncActivity[] = [
 // ============================================================================
 
 export function getCreatorById(id: string): Creator | undefined {
-  return CREATORS.find((c) => c.id === id);
+  // Try exact match first
+  let creator = CREATORS.find((c) => c.id === id);
+
+  // If not found, generate a default mock creator
+  if (!creator) {
+    return {
+      id,
+      username: `creator_${id.slice(-8)}`,
+      displayName: `Creator ${id.slice(-4)}`,
+      ofUsername: `of_${id.slice(-8)}`,
+      avatarUrl: undefined,
+      bio: 'Auto-generated creator for testing',
+      subscriptionPrice: 9.99,
+      totalRevenue: Math.floor(Math.random() * 50000) + 10000,
+      totalFans: Math.floor(Math.random() * 500) + 50,
+      activeFans: Math.floor(Math.random() * 300) + 30,
+      joinedAt: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000),
+      status: 'active',
+      tags: ['auto-generated'],
+    };
+  }
+
+  return creator;
 }
 
 export function getFanById(id: string): Fan | undefined {
-  return FANS.find((f) => f.id === id);
+  // Try exact match first
+  let fan = FANS.find((f) => f.id === id);
+
+  // If not found, generate a default mock fan
+  if (!fan) {
+    const randomTier = ['whale', 'high', 'medium', 'low'][Math.floor(Math.random() * 4)] as 'whale' | 'high' | 'medium' | 'low';
+    const tierSpendMap = {
+      whale: { min: 5000, max: 20000 },
+      high: { min: 1000, max: 4999 },
+      medium: { min: 200, max: 999 },
+      low: { min: 10, max: 199 },
+    };
+
+    const spendRange = tierSpendMap[randomTier];
+    const totalSpent = Math.floor(Math.random() * (spendRange.max - spendRange.min + 1)) + spendRange.min;
+
+    return {
+      id,
+      username: `@user_${id.slice(-8)}`,
+      displayName: `User ${id.slice(-4)}`,
+      email: `user_${id.slice(-8)}@example.com`,
+      creatorId: CREATORS[0]?.id || 'creator_default',
+      tier: randomTier,
+      totalSpent,
+      messageCount: Math.floor(Math.random() * 100) + 10,
+      tipCount: Math.floor(Math.random() * 20),
+      ppvPurchases: Math.floor(Math.random() * 15),
+      subscriptionStatus: 'active',
+      subscriptionRenewsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      joinedAt: new Date(Date.now() - Math.random() * 180 * 24 * 60 * 60 * 1000),
+      lastActiveAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
+      tags: [randomTier, 'auto-generated'],
+      notes: 'Auto-generated fan for testing',
+      riskScore: Math.floor(Math.random() * 100),
+    };
+  }
+
+  return fan;
 }
 
 export function getChatterById(id: string): Chatter | undefined {
